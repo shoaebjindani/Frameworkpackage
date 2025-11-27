@@ -72,9 +72,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.yaml.snakeyaml.Yaml;
 
-import com.crystal.customizedpos.Configuration.Config;
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -90,6 +93,10 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.qrcode.EncodeHintType;
 import com.itextpdf.text.pdf.qrcode.ErrorCorrectionLevel;
+
+
+import org.springframework.core.io.Resource;
+
 
 public class CommonFunctions extends PdfPageEventHelper 
 {
@@ -683,7 +690,7 @@ public class CommonFunctions extends PdfPageEventHelper
 		try 
 		{		
 			
-			InputStream in = Config.class.getResourceAsStream("Config.yaml");
+			InputStream in = getClass().getClassLoader().getResourceAsStream("Config.yaml");			
 			if(in!=null)
 			{
 
@@ -755,143 +762,166 @@ public class CommonFunctions extends PdfPageEventHelper
 	
 	
 	
-	public void setElementsMaster()
-	{
-		InputStream in = Config.class.getResourceAsStream("Elements.yaml");
-		Yaml yaml = new Yaml(); Map<String, Object> data = yaml.load(in);
-		List<HashMap<String, String>> lstElements= (List<HashMap<String, String>>)data.get("elements");
-		
-		for(HashMap<String, String> hm:lstElements)
-		{
-			Element e=new Element();
-			e.setElementId(Long.valueOf(String.valueOf(hm.get("elementId"))));
-			e.setElementName(hm.get("elementName"));
-			e.setParentElementId(Long.valueOf(String.valueOf(hm.get("parentElementId"))));
-			e.setElementUrl(hm.get("elementUrl"));
-			e.setOrderNo(Integer.parseInt(String.valueOf(hm.get("orderNo"))));
-			elements.add(e);
-		}
-	}
-	
-	public void setRoles(Class[] scanClasses) 
-	{
-    try 
-    {
-        File rolesFolder = new File(Config.class.getResource("roles/").toURI());
-        File[] roleFiles = rolesFolder.listFiles();
-        if (roleFiles != null) {
-            for (File roleFile : roleFiles) {
-                if (roleFile.isFile()) {
-                    InputStream in = Config.class.getResourceAsStream("roles/" + roleFile.getName());
-                    Yaml yaml = new Yaml();
-                    List<Map<String, Object>> rolesList = yaml.load(in);
-                    Map<String, Object> role1 = rolesList.get(0);
+	public void setElementsMaster() 
+{
+    try {
+        Resource resource = new ClassPathResource("Elements.yaml");
+        InputStream in = resource.getInputStream();
 
-                    Role r = new Role(
-                            Long.parseLong(String.valueOf(role1.get("roleId"))),
-                            String.valueOf(role1.get("roleName"))
-                    );
+        Yaml yaml = new Yaml();
+        Map<String, Object> data = yaml.load(in);
 
-                    List<String> actionsList = (List<String>) role1.get("actions");
-                    String[] actionsArray = actionsList.toArray(new String[0]);
-                    r.setActions(actionsArray);
+        List<HashMap<String, String>> lstElements =
+                (List<HashMap<String, String>>) data.get("elements");
 
-                    if (role1.get("dashboard") != null) {
-                        String dashboard = (String) role1.get("dashboard");
-                        r.setDashboardList(dashboard.split(","));
-                    }
+        for (HashMap<String, String> hm : lstElements) {
+            Element e = new Element();
+            e.setElementId(Long.valueOf(String.valueOf(hm.get("elementId"))));
+            e.setElementName(hm.get("elementName"));
+            e.setParentElementId(Long.valueOf(String.valueOf(hm.get("parentElementId"))));
+            e.setElementUrl(hm.get("elementUrl"));
+            e.setOrderNo(Integer.parseInt(String.valueOf(hm.get("orderNo"))));
 
-                    List<Integer> elementsList = (List<Integer>) role1.get("elements");
-                    Integer[] elementsArray = elementsList.toArray(new Integer[0]);
-                    r.setElements(elementsArray);
-
-					List<Integer> reportsList = (List<Integer>) role1.get("reports");
-					if(reportsList!=null)
-					{
-						Integer[] reportsArray = reportsList.toArray(new Integer[0]);
-						r.setReports(reportsArray);
-					}
-
-                    roles.put(r.getRoleId(), r);
-                }
-            }
+            elements.add(e);
         }
-		actions=getActionServiceList(scanClasses);
+
     } catch (Exception e) {
-        // Handle exceptions
         e.printStackTrace();
     }
 }
-	
-	public void setByPassedActions() 
-	{		
-		try 
-		{
-			InputStream in =Config.class.getResourceAsStream("Application.yaml");
-			Yaml yaml = new Yaml(); 
-			Map<String, Object> data = yaml.load(in);
-			String[] bypassedActions=((String) data.get("bypassedActions")).split(",");
-			lstbypassedActions= Arrays.asList(bypassedActions);
 
-			String[] bypassedReports=((String) data.get("bypassedReports")).split(",");
-			lstbypassedReports= Arrays.asList(bypassedReports);
-			
-			
-		} catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
+	public void setRoles(Class[] scanClasses) {
+    try {
+        // Load all files under classpath:roles/
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource[] roleResources = resolver.getResources("classpath:roles/*");
+
+        for (Resource resource : roleResources) {
+            if (resource.isReadable()) {
+
+                InputStream in = resource.getInputStream();
+                Yaml yaml = new Yaml();
+
+                List<Map<String, Object>> rolesList = yaml.load(in);
+                Map<String, Object> role1 = rolesList.get(0);
+
+                Role r = new Role(
+                        Long.parseLong(String.valueOf(role1.get("roleId"))),
+                        String.valueOf(role1.get("roleName"))
+                );
+
+                // Actions
+                List<String> actionsList = (List<String>) role1.get("actions");
+                if (actionsList != null) {
+                    r.setActions(actionsList.toArray(new String[0]));
+                }
+
+                // Dashboard
+                if (role1.get("dashboard") != null) {
+                    String dashboard = (String) role1.get("dashboard");
+                    r.setDashboardList(dashboard.split(","));
+                }
+
+                // Elements
+                List<Integer> elementsList = (List<Integer>) role1.get("elements");
+                if (elementsList != null) {
+                    r.setElements(elementsList.toArray(new Integer[0]));
+                }
+
+                // Reports
+                List<Integer> reportsList = (List<Integer>) role1.get("reports");
+                if (reportsList != null) {
+                    r.setReports(reportsList.toArray(new Integer[0]));
+                }
+
+                roles.put(r.getRoleId(), r);
+            }
+        }
+
+        actions = getActionServiceList(scanClasses);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+	public void setByPassedActions() {
+    try {
+        Resource resource = new ClassPathResource("Application.yaml");
+        InputStream in = resource.getInputStream();
+
+        Yaml yaml = new Yaml();
+        Map<String, Object> data = yaml.load(in);
+
+        // Load bypassed actions
+        String[] bypassedActions = String.valueOf(data.get("bypassedActions")).split(",");
+        lstbypassedActions = Arrays.asList(bypassedActions);
+
+        // Load bypassed reports
+        String[] bypassedReports = String.valueOf(data.get("bypassedReports")).split(",");
+        lstbypassedReports = Arrays.asList(bypassedReports);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
 	
-	public void setDashboardLinks() 
-	{		
-		try 
-		{
-			
- 			InputStream in =Config.class.getResourceAsStream("DashboardLinkMapping.yaml");
- 			if(in==null)
- 			{return;}
-			Yaml yaml = new Yaml(); 
-			dashboardLinks= yaml.load(in);
-			
-			
-			
-			
-			
-		} catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
+	public void setDashboardLinks() {
+    try {
+        Resource resource = new ClassPathResource("DashboardLinkMapping.yaml");
+
+        if (!resource.exists()) {
+            return; // Same behavior as your "if(in == null)" check
+        }
+
+        InputStream in = resource.getInputStream();
+        Yaml yaml = new Yaml();
+
+        dashboardLinks = yaml.load(in);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
 	
 	
 	
 	
 	
-	public void setApplicationTypes() 
-	{		
-		try 
-		{
-			InputStream in = Config.class.getResourceAsStream("Application.yaml");
-			Yaml yaml = new Yaml(); 
-			Map<String, Object> data = yaml.load(in);				
-				List<LinkedHashMap<String,Object>> lst= (List<LinkedHashMap<String,Object>>)data.get("appTypes");
-				 HashMap<String, List<Role>> appType=new HashMap<>();
-			for(LinkedHashMap<String, Object> lm: lst)
-			{
-				String[] roles=String.valueOf(lm.get("roles")).split(",");
-				List<Long> rolesInt=Stream.of(roles).map(Long::valueOf).collect(Collectors.toList());
-				LinkedHashMap<Long, Role> lstRoles=getRolesById(rolesInt);
-				apptypes.put(lm.get("appType").toString(),lstRoles);
-			}
-			
-			
-			
-		} catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
+	public void setApplicationTypes() {
+    try {
+        Resource resource = new ClassPathResource("Application.yaml");
+        InputStream in = resource.getInputStream();
+
+        Yaml yaml = new Yaml();
+        Map<String, Object> data = yaml.load(in);
+
+        List<LinkedHashMap<String, Object>> lst =
+                (List<LinkedHashMap<String, Object>>) data.get("appTypes");
+
+        for (LinkedHashMap<String, Object> lm : lst) {
+
+            // roles field is something like "1,2,3"
+            String[] roles = String.valueOf(lm.get("roles")).split(",");
+
+            // convert to List<Long>
+            List<Long> rolesInt = 
+                    Stream.of(roles).map(Long::valueOf).collect(Collectors.toList());
+
+            // lookup roles
+            LinkedHashMap<Long, Role> lstRoles = getRolesById(rolesInt);
+
+            // put into map
+            apptypes.put(lm.get("appType").toString(), lstRoles);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
 	  
 	public List<String> getRolesNamesForIds(List<String> roleIds,HashMap<Long, Role> rolesMap,Connection con) throws SQLException, ClassNotFoundException
 	{
