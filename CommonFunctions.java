@@ -74,7 +74,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.yaml.snakeyaml.Yaml;
 
-
+import com.crystal.customizedpos.Configuration.Config;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -683,7 +683,7 @@ public class CommonFunctions extends PdfPageEventHelper
 		try 
 		{		
 			
-			InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("Config.yaml");
+			InputStream in = Config.class.getResourceAsStream("Config.yaml");
 			if(in!=null)
 			{
 
@@ -757,7 +757,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	
 	public void setElementsMaster()
 	{
-		InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("Elements.yaml");
+		InputStream in = Config.class.getResourceAsStream("Elements.yaml");
 		Yaml yaml = new Yaml(); Map<String, Object> data = yaml.load(in);
 		List<HashMap<String, String>> lstElements= (List<HashMap<String, String>>)data.get("elements");
 		
@@ -777,12 +777,12 @@ public class CommonFunctions extends PdfPageEventHelper
 	{
     try 
     {
-        File rolesFolder = new File(customizedpos.Configuration.Config.class.getResource("roles/").toURI());
+        File rolesFolder = new File(Config.class.getResource("roles/").toURI());
         File[] roleFiles = rolesFolder.listFiles();
         if (roleFiles != null) {
             for (File roleFile : roleFiles) {
                 if (roleFile.isFile()) {
-                    InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("roles/" + roleFile.getName());
+                    InputStream in = Config.class.getResourceAsStream("roles/" + roleFile.getName());
                     Yaml yaml = new Yaml();
                     List<Map<String, Object>> rolesList = yaml.load(in);
                     Map<String, Object> role1 = rolesList.get(0);
@@ -827,7 +827,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	{		
 		try 
 		{
-			InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("Application.yaml");
+			InputStream in =Config.class.getResourceAsStream("Application.yaml");
 			Yaml yaml = new Yaml(); 
 			Map<String, Object> data = yaml.load(in);
 			String[] bypassedActions=((String) data.get("bypassedActions")).split(",");
@@ -848,7 +848,7 @@ public class CommonFunctions extends PdfPageEventHelper
 		try 
 		{
 			
- 			InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("DashboardLinkMapping.yaml");
+ 			InputStream in =Config.class.getResourceAsStream("DashboardLinkMapping.yaml");
  			if(in==null)
  			{return;}
 			Yaml yaml = new Yaml(); 
@@ -872,7 +872,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	{		
 		try 
 		{
-			InputStream in = customizedpos.Configuration.Config.class.getResourceAsStream("Application.yaml");
+			InputStream in = Config.class.getResourceAsStream("Application.yaml");
 			Yaml yaml = new Yaml(); 
 			Map<String, Object> data = yaml.load(in);				
 				List<LinkedHashMap<String,Object>> lst= (List<LinkedHashMap<String,Object>>)data.get("appTypes");
