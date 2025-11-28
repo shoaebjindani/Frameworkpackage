@@ -765,7 +765,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	public void setElementsMaster() 
 {
     try {
-        Resource resource = new ClassPathResource("Elements.yaml");
+        Resource resource = new ClassPathResource("staticyaml/Elements.yaml");
         InputStream in = resource.getInputStream();
 
         Yaml yaml = new Yaml();
@@ -847,7 +847,7 @@ public class CommonFunctions extends PdfPageEventHelper
 
 	public void setByPassedActions() {
     try {
-        Resource resource = new ClassPathResource("Application.yaml");
+        Resource resource = new ClassPathResource("staticyaml/Application.yaml");
         InputStream in = resource.getInputStream();
 
         Yaml yaml = new Yaml();
@@ -869,7 +869,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	
 	public void setDashboardLinks() {
     try {
-        Resource resource = new ClassPathResource("DashboardLinkMapping.yaml");
+        Resource resource = new ClassPathResource("staticyaml/DashboardLinkMapping.yaml");
 
         if (!resource.exists()) {
             return; // Same behavior as your "if(in == null)" check
@@ -892,7 +892,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	
 	public void setApplicationTypes() {
     try {
-        Resource resource = new ClassPathResource("Application.yaml");
+        Resource resource = new ClassPathResource("staticyaml/Application.yaml");
         InputStream in = resource.getInputStream();
 
         Yaml yaml = new Yaml();
