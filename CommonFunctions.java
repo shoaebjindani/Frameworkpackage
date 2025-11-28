@@ -690,7 +690,9 @@ public class CommonFunctions extends PdfPageEventHelper
 		try 
 		{		
 			
-			InputStream in = getClass().getClassLoader().getResourceAsStream("staticyaml/Config.yaml");			
+			
+			Resource resource = new ClassPathResource("staticyaml/Config.yaml");
+        	InputStream in = resource.getInputStream();
 			if(in!=null)
 			{
 
@@ -794,7 +796,7 @@ public class CommonFunctions extends PdfPageEventHelper
     try {
         // Load all files under classpath:roles/
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] roleResources = resolver.getResources("classpath:roles/*");
+        Resource[] roleResources = resolver.getResources("classpath:staticyaml/roles/*");
 
         for (Resource resource : roleResources) {
             if (resource.isReadable()) {
