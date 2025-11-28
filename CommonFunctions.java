@@ -690,7 +690,7 @@ public class CommonFunctions extends PdfPageEventHelper
 		try 
 		{		
 			
-			InputStream in = getClass().getClassLoader().getResourceAsStream("Config.yaml");			
+			InputStream in = getClass().getClassLoader().getResourceAsStream("staticyaml/Config.yaml");			
 			if(in!=null)
 			{
 
