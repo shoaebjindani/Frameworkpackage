@@ -190,7 +190,6 @@ const elements=[];
   </c:forEach>
 </c:forEach>;
 
-console.log("✅ Elements loaded:", elements);
 
 const searchBox=document.getElementById("searchBox");
 const resultsDropdown=document.getElementById("resultsDropdown");
