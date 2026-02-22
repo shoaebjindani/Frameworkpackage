@@ -1,388 +1,245 @@
-<style>
-	.date_field {position: relative; z-index:1000;}
-	.ui-datepicker{position: relative; z-index:1000!important;}
-</style>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="jspName" value='${requestScope["outputObject"].get("contentJspName")}' />
-<c:set var="userName" value='${requestScope["outputObject"].get("userName")}' />
 <c:set var="elementsDB" value='${requestScope["outputObject"].get("elementsDB")}' />
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${projectName}</title>
-  <link rel="icon" href="https://img.icons8.com/emoji/48/000000/cloud-emoji.png" type="image/png" sizes="16x16">
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- CSS & LIBRARIES -->
-  <link rel="stylesheet" href="css/jquery-ui.css">
-  <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
-  <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <link rel="stylesheet" href="dist/css/adminlte.min.css">
-  <link rel="stylesheet" href="css/site.css">
-  <link rel="stylesheet" href="css/richtext.min.css">
-  <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+  <!-- Bootstrap 5.3 + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-
-  <!-- SCRIPTS -->
-  <script src="js/common.js"></script>
-  <script src="plugins/jquery/jquery.min.js"></script>
-  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-  <script src="dist/js/adminlte.min.js"></script>
-  <script src="dist/js/demo.js"></script>
-  <script src="js/jquery-ui.js"></script>
-  <script src="plugins/toastr/toastr.min.js"></script>
-  <script src="plugins/datatables/jquery.dataTables.min.js"></script>
-  <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-  <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-  <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-
-<!-- ========================================================= -->
-<!--             FINAL FIX — TABLE HEADER COLOR                -->
-<!-- ========================================================= -->
-
-<style>
-    :root {
-      --primary-color: #d4af37; /* original gold */
-      --primary-soft: #e8c86e;  /* **softer gold you selected** */
-      --primary-dark: #b89122;
-      --secondary-color: #6c757d;
-      --background-color: #f7f7f7;
-      --text-color: #212529;
-      --navbar-bg: #ffffff;
-      --sidebar-bg: #2f2f2f;
-      --sidebar-text: #f1f1f1;
-      --sidebar-hover: #d4af37;
-    }
-
+  <style>
     body {
-      background-color: var(--background-color);
-      color: var(--text-color);
-      font-family: "Segoe UI", sans-serif;
+      font-family: 'Inter', sans-serif;
+      background:#f7f9fc;
     }
 
-    /* ============================
-       NAVBAR
-    ============================ */
-    .main-header.navbar {
-      background-color: var(--navbar-bg) !important;
-      border-bottom: 2px solid var(--primary-color);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    .navbar {
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+      padding:0.75rem 1.5rem;
     }
 
-    .main-header .nav-link {
-      color: var(--text-color) !important;
-      font-weight: 600;
-    }
-    .main-header .nav-link:hover {
-      color: var(--primary-dark) !important;
-    }
-
-    /* ============================
-       SIDEBAR
-    ============================ */
-    .main-sidebar {
-      background-color: var(--sidebar-bg) !important;
-    }
-
-    .sidebar .nav-link {
-      color: var(--sidebar-text) !important;
-    }
-
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background-color: rgba(212,175,55,0.15);
-      border-left: 3px solid var(--sidebar-hover);
-      color: var(--sidebar-hover) !important;
-    }
-
-    /* ============================
-       TABLE HEADER FIX (IMPORTANT)
-    ============================ */
-    table thead th,
-    table th {
-        background-color: var(--primary-soft) !important; /* softer gold */
-        color: #000 !important; /* black for readability */
-        text-align: center;
-        font-weight: 600;
-    }
-
-    /* TABLE BODY */
-    td { color: #333; }
-
-    /* BUTTONS */
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-    }
-
-    /* MODAL */
-    .modal-content {
-      border-radius: 10px;
-      border: 2px solid var(--primary-color);
-    }
-
-    /* TITLE */
     #divTitle {
-      color: var(--primary-dark);
-      font-size: 1.2rem;
       font-weight: 700;
+      font-size: 1.4rem;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
     }
-</style>
 
+    .search-box {
+      position:relative;
+      display:flex;
+      align-items:center;
+      background:#f1f5f9;
+      border-radius:8px;
+      padding:0.35rem 0.8rem;
+      width:260px;
+      margin-right:1rem;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .search-box:focus-within {
+      box-shadow:0 0 0 2px rgba(37,99,235,0.3);
+    }
+
+    .search-box i {
+      position:absolute;
+      right:12px;
+      color:#64748b;
+      pointer-events:none;
+    }
+
+    .search-input {
+      border:none;
+      background:transparent;
+      outline:none;
+      width:100%;
+      font-size:0.9rem;
+      color:#111827;
+      padding-right:22px;
+    }
+
+    .search-input::placeholder { color:#9ca3af; }
+
+    .results-dropdown {
+      position:absolute;
+      top:110%;
+      left:0;
+      right:0;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      border-radius:8px;
+      z-index:1000;
+      max-height:300px;
+      overflow-y:auto;
+    }
+
+    .result-item {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-size:0.9rem;
+      color:#374151;
+      border-bottom:1px solid #f3f4f6;
+    }
+
+    .result-item:hover {
+      background:#eef2ff;
+    }
+
+    .no-result {
+      color:#9ca3af;
+      padding:8px 12px;
+    }
+  </style>
 </head>
 
-<body class="hold-transition sidebar-mini sidebar-expand layout-fixed">
-<div class="wrapper">
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
+    
+    <!-- Left: Page Title -->
+    <div id="divTitle">${projectName}</div>
+    
+    <!-- Right: Search + Home + Logout -->
+    <div class="d-flex align-items-center">
+      <!-- Search -->
+      <div class="search-box me-3">
+        <input type="text" id="searchBox" class="search-input" placeholder="Search elements..." autocomplete="off">
+        <i class="fa fa-search"></i>
+        <div id="resultsDropdown" class="results-dropdown d-none"></div>
+      </div>
 
-<!-- ========================================================= -->
-<!--                         NAVBAR                            -->
-<!-- ========================================================= -->
+      <!-- Home -->
+      <a href="?a=showHomePage" class="nav-link me-3">
+        <i class="fa fa-home me-1"></i> Home
+      </a>
 
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-      </li>
-    </ul>
-
-    <div class="row" style="width:-webkit-fill-available" align="center">
-      <div class="col-12"><div id="divTitle"></div></div>
+      <!-- Logout -->
+      <a href="javascript:logout();" class="nav-link text-danger">
+        <i class="fa fa-sign-out-alt me-1"></i> Logout
+      </a>
     </div>
-
-    <ul class="navbar-nav ml-auto">
-
-      <li class="nav-item">
-        <a href="?a=showHomePage" class="nav-link"><strong>Home</strong></a>
-      </li>
-
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-          <strong>${userdetails.username}</strong>
-        </a>
-
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item"><strong>Valid Till (${userdetails.validTillDDMMYYY})</strong></a>
-          <a href="?a=showChangePassword" class="dropdown-item"><strong>Change Password</strong></a>
-          <a href="?a=showShortcuts" class="dropdown-item"><strong>Shortcuts</strong></a>
-          <a href="javascript:logout();" class="dropdown-item" id="refLogout"><strong>Logout</strong></a>
-        </div>
-      </li>
-
-    </ul>
-  </nav>
-
-<!-- ========================================================= -->
-<!--                        SIDEBAR                             -->
-<!-- ========================================================= -->
-
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <div class="sidebar">
-
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2">
-        </div>
-        <div class="info">
-          <a href="#" class="d-block">${userdetails.username}<br>(${userdetails.firm_name}${userdetails.store_name})</a>
-        </div>
-      </div>
-
-      <div class="form-inline sidebar-search-open">
-        <div class="input-group">
-          <input class="form-control form-control-sidebar" id="txtseachsidebar" onkeyup="searchElement(this)" placeholder="Search">
-          <div class="input-group-append">
-            <button class="btn btn-sidebar"><i class="fas fa-fw fa-search"></i></button>
-          </div>
-        </div>
-      </div>
-
-     <nav class="mt-2">
-  <ul class="nav nav-pills nav-sidebar flex-column"
-      data-widget="treeview"
-      role="menu"
-      data-accordion="false">
-
-    <c:forEach items="${elementsDB}" var="item">
-      <li class="nav-item has-treeview" name="listItemParentElements" id="${item.getElementName()}">
-        <a href="#" name="anchorParentElement" class="nav-link" style="color:floralwhite;font-weight:800">
-          <i class="nav-icon fas fa-tachometer-alt"></i>
-          <p>${item.getElementName()}<i class="right fas fa-angle-left"></i></p>
-        </a>
-        <ul class="nav nav-treeview">
-          <c:forEach items="${item.getChildElements()}" var="item1">
-            <li id="${item1.getElementName()}" class="nav-item">
-              <a href="${item1.getElementUrl()}" style="color:floralwhite" class="nav-link">
-                <i class="nav-icon fas fa-edit"></i>
-                <p style="color:cyan">${ item1.getElementName()}</p>
-              </a>
-            </li>
-          </c:forEach>
-        </ul>
-      </li>
-    </c:forEach>
-
-  </ul>
+  </div>
 </nav>
 
+<!-- Page Content -->
+<div class="container-fluid p-4">
+  <jsp:include page="${jspName}"/>
+</div>
 
-    </div>
-  </aside>
-
-<!-- ========================================================= -->
-<!--                   MAIN CONTENT AREA                        -->
-<!-- ========================================================= -->
-
-  <div class="content-wrapper" style="background:lightblue">
-    <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <jsp:include page="${jspName}"/>
-          </div>
-        </div>
+<!-- Logout Modal -->
+<div class="modal fade" id="myModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-3">
+      <div class="modal-body">
+        <div id="responseText"><div class="loader" id="loader"></div></div>
       </div>
-    </section>
-  </div>
-
-</div> <!-- wrapper end -->
-
-<!-- ========================================================= -->
-<!--                       MODAL                                -->
-<!-- ========================================================= -->
-
-<div class="modal fade" id="myModal" role="dialog">
-  <div class="modal-dialog modal-lg" style="min-width:100%">
-    <div class="modal-content">
-      <div class="modal-body" align="center">
-        <p id="responseText"><div align="center" class="loader" id="loader"></div></p>
-      </div>
-      <div class="modal-footer" style="text-align:right">
-        <button id="closebutton" type="button" onclick='location.reload()' class="btn btn-danger" data-dismiss="modal">Close</button>
+      <div class="modal-footer justify-content-center">
+        <button id="closebutton" type="button" onclick='location.reload()' class="btn btn-danger" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ========================================================= -->
-<!--                  JAVASCRIPT FUNCTIONS                      -->
-<!-- ========================================================= -->
-
+<!-- Scripts -->
 <script>
-function navigateToURL(theURL){ window.location=theURL; }
-
 function logout() {
-	document.getElementById("closebutton").style.display='none';
-	$('#myModal').modal({backdrop: 'static', keyboard: false});
-
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-	  if (xhttp.readyState == 4 && xhttp.status == 200) {
-	    document.getElementById("loader").style.display='none';
-	    document.getElementById("responseText").innerHTML=xhttp.responseText;
-	    document.getElementById("closebutton").style.display='block';
-	    window.location.reload();
-	  }
-	};
-	xhttp.open("GET","?a=Logout", true);
-	xhttp.send();
-}
-</script>
-
-<script>
-$(document).ready(function () {
-  window.onkeydown = function(evt) {
-    if (evt.keyCode == 119) logout();  // F8
+  document.getElementById("closebutton").style.display='none';
+  const modal=new bootstrap.Modal(document.getElementById('myModal'),{backdrop:'static'});
+  modal.show();
+  const xhttp=new XMLHttpRequest();
+  xhttp.onreadystatechange=function(){
+    if(xhttp.readyState==4&&xhttp.status==200){
+      document.getElementById("loader").style.display='none';
+      document.getElementById("responseText").innerHTML=xhttp.responseText;
+      document.getElementById("closebutton").style.display='block';
+    }
   };
-});
-</script>
-
-<!-- SEARCH SIDEBAR -->
-<script>
-function searchElement(txtsearch){
-	var parentElements=document.getElementsByName("listItemParentElements");
-	var showParent=false;
-
-	for(var i=0;i<parentElements.length;i++){
-		var childElements=parentElements[i].childNodes[3];
-		var childElementsLi=childElements.getElementsByTagName("li");
-
-		for(var m=0;m<childElementsLi.length;m++){
-			var link = childElementsLi[m].querySelector("a p");
-			if (!link) continue;
-
-			var name = link.innerHTML.toLowerCase();
-			if(!name.includes(txtsearch.value.toLowerCase())){
-				childElementsLi[m].style.display="none";
-			} else {
-				childElementsLi[m].style.display="";
-				showParent=true;
-			}
-		}
-
-		if(parentElements[i].id.toLowerCase().includes(txtsearch.value.toLowerCase()) || showParent)
-			parentElements[i].style.display="";
-		else
-			parentElements[i].style.display="none";
-
-		showParent=false;
-	}
-
-	var list=document.getElementsByName("listItemParentElements");
-	for(var z=0;z<list.length;z++){
-		list[z].className = (txtsearch.value=="") 
-		  ? "nav-item has-treeview"
-		  : "nav-item has-treeview menu-open";
-	}
+  xhttp.open("GET","?a=Logout",true);
+  xhttp.send();
 }
-</script>
 
-<!-- KEYBOARD SHORTCUTS -->
-<script>
-window.addEventListener('keydown', function(e) {
-  if (e.altKey && e.keyCode == 76) logout();   // ALT + L
-});
-window.addEventListener('keydown', function(e) {
-  if (e.altKey && e.shiftKey && e.keyCode == 82) window.location.href = "?a=reloadSession"; // ALT+SHIFT+R
-});
+// ✅ Build searchable list safely
 
-window.onload = function () {
-  const isAndroid = /Android/i.test(navigator.userAgent);
 
-  if (!isAndroid) {
-    document.getElementById("txtseachsidebar").focus();
+
+// ✅ Build searchable list safely
+const elements=[];
+<c:forEach items="${elementsDB}" var="item">
+  <c:forEach items="${item.getChildElements()}" var="child">
+    elements.push({
+      name: '${item.getElementName()} <br> > ${child.getElementName()}',
+      url: '${child.getElementUrl()}'
+    });
+  </c:forEach>
+</c:forEach>;
+
+console.log("✅ Elements loaded:", elements);
+
+const searchBox=document.getElementById("searchBox");
+const resultsDropdown=document.getElementById("resultsDropdown");
+
+// ✅ Show all or filtered elements dynamically
+function renderList(list) {
+  resultsDropdown.innerHTML="";
+  if(list.length===0){
+    resultsDropdown.innerHTML="<div class='no-result'>No results found</div>";
+  } else {
+    list.forEach(e=>{
+      const div=document.createElement("div");
+      div.className="result-item";
+      div.innerHTML=`<i class='fa fa-angle-right text-primary'></i><span>`+e.name+`</span>`;
+      div.onclick=()=>window.location=e.url;
+      resultsDropdown.appendChild(div);
+    });
   }
-};
+  resultsDropdown.classList.remove("d-none");
+}
 
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.shiftKey && event.key === 'F') {
-      document.getElementById("txtseachsidebar").focus();
-    }
+function showResults(query){
+  const filtered = query
+    ? elements.filter(e=>e.name.toLowerCase().includes(query.toLowerCase()))
+    : elements; // show all if empty
+  renderList(filtered);
+}
+
+// 🟢 Show all when focusing
+searchBox.addEventListener("focus",()=>showResults(""));
+
+// 🔍 Filter as user types
+searchBox.addEventListener("input",()=>showResults(searchBox.value.trim()));
+
+// Close dropdown when clicking outside
+document.addEventListener("click",e=>{
+  if(!document.querySelector(".search-box").contains(e.target)){
+    resultsDropdown.classList.add("d-none");
+  }
 });
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.shiftKey && event.key === 'H') {
-      window.location="?a=showHomePage";
-    }
+
+// Ctrl + K focuses search
+window.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){
+    e.preventDefault();
+    searchBox.focus();
+  }
 });
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.shiftKey && event.key === 'L') {
-      logout();
-    }
-});
+
 </script>
-
 </body>
 </html>
