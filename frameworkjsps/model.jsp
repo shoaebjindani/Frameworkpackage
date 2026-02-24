@@ -209,7 +209,7 @@
 <!--                         NAVBAR                            -->
 <!-- ========================================================= -->
 
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light" style="margin-left:0px">
 
     <!-- Left: title -->
     <div class="d-flex align-items-center">
