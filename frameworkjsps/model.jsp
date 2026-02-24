@@ -1,3 +1,8 @@
+<style>
+	.date_field {position: relative; z-index:1000;}
+	.ui-datepicker{position: relative; z-index:1000!important;}
+</style>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="jspName" value='${requestScope["outputObject"].get("contentJspName")}' />
@@ -10,312 +15,458 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${projectName}</title>
-  <link rel="icon" href="https://img.icons8.com/emoji/48/000000/cloud-emoji.png" type="image/png">
+  <link rel="icon" href="https://img.icons8.com/emoji/48/000000/cloud-emoji.png" type="image/png" sizes="16x16">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Existing CSS -->
+  <!-- CSS & LIBRARIES -->
   <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <link rel="stylesheet" href="css/site.css">
   <link rel="stylesheet" href="css/richtext.min.css">
   <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
-  <!-- JS imports -->
+  <!-- SCRIPTS -->
+  <script src="js/common.js"></script>
   <script src="plugins/jquery/jquery.min.js"></script>
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
   <script src="dist/js/adminlte.min.js"></script>
+  <script src="dist/js/demo.js"></script>
   <script src="js/jquery-ui.js"></script>
   <script src="plugins/toastr/toastr.min.js"></script>
   <script src="plugins/datatables/jquery.dataTables.min.js"></script>
   <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
   <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
   <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-  <script src="js/common.js"></script>
 
-  <style>
+<style>
     :root {
       --primary-color: #d4af37;
+      --primary-soft: #e8c86e;
       --primary-dark: #b89122;
-    }
-
-    /* ── Kill AdminLTE sidebar offset ── */
-    body.hold-transition .wrapper,
-    .content-wrapper,
-    .main-header {
-      margin-left: 0 !important;
+      --secondary-color: #6c757d;
+      --background-color: #f7f7f7;
+      --text-color: #212529;
+      --navbar-bg: #ffffff;
     }
 
     body {
-      background: #f7f7f7;
+      background-color: var(--background-color);
+      color: var(--text-color);
       font-family: "Segoe UI", sans-serif;
     }
 
-    /* ── Navbar ── */
+    /* ============================
+       NAVBAR
+    ============================ */
     .main-header.navbar {
-      background: #fff !important;
+      background-color: var(--navbar-bg) !important;
       border-bottom: 2px solid var(--primary-color);
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 1.25rem;
-      position: sticky;
-      top: 0;
-      z-index: 1030;
-      width: 100%;
+    }
+
+    .main-header .nav-link {
+      color: var(--text-color) !important;
+      font-weight: 600;
+    }
+    .main-header .nav-link:hover {
+      color: var(--primary-dark) !important;
+    }
+
+    /* ============================
+       TABLE HEADER
+    ============================ */
+    table thead th,
+    table th {
+        background-color: var(--primary-soft) !important;
+        color: #000 !important;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    td { color: #333; }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .modal-content {
+      border-radius: 10px;
+      border: 2px solid var(--primary-color);
     }
 
     #divTitle {
-      font-weight: 700;
-      font-size: 1.3rem;
       color: var(--primary-dark);
-      white-space: nowrap;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
 
-    /* ── Search Box ── */
-    .search-box {
+    /* ============================
+       NAV SEARCH BOX
+    ============================ */
+    #navSearchWrapper {
       position: relative;
-      display: flex;
-      align-items: center;
-      background: #f1f3f5;
-      border-radius: 6px;
-      padding: 5px 10px;
-      width: 260px;
-      transition: box-shadow 0.2s;
     }
 
-    .search-box:focus-within {
-      box-shadow: 0 0 0 2px rgba(212,175,55,0.4);
-    }
-
-    .search-box input {
-      border: none;
-      background: transparent;
-      width: 100%;
+    #navSearchInput {
+      width: 240px;
+      border: 1.5px solid var(--primary-color);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.88rem;
       outline: none;
-      font-size: 0.875rem;
-      color: #333;
+      transition: width 0.3s ease;
     }
 
-    .search-box input::placeholder { color: #aaa; }
-
-    .search-box i {
-      color: #888;
-      margin-left: 6px;
-      font-size: 0.85rem;
+    #navSearchInput:focus {
+      width: 300px;
+      border-color: var(--primary-dark);
+      box-shadow: 0 0 0 2px rgba(212,175,55,0.25);
     }
 
-    /* ── Dropdown ── */
-    .results-dropdown {
+    #navSearchDropdown {
+      display: none;
       position: absolute;
       top: calc(100% + 6px);
-      left: 0;
       right: 0;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
-      z-index: 2000;
-      max-height: 320px;
+      width: 320px;
+      max-height: 360px;
       overflow-y: auto;
+      background: #fff;
+      border: 1.5px solid var(--primary-color);
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      z-index: 9999;
     }
 
-    .result-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #f3f3f3;
-      font-size: 0.875rem;
+    #navSearchDropdown.show {
+      display: block;
+    }
+
+    .nav-search-item {
+      display: block;
+      padding: 8px 16px;
+      font-size: 0.88rem;
       color: #333;
+      text-decoration: none;
+      border-bottom: 1px solid #f0e6c0;
+      transition: background 0.15s;
     }
 
-    .result-item:last-child { border-bottom: none; }
+    .nav-search-item:last-child {
+      border-bottom: none;
+    }
 
-    .result-item:hover { background: #fdf8e8; }
+    .nav-search-item:hover {
+      background-color: #fdf5dc;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
 
-    .result-item .parent-name {
+    .nav-search-item .parent-label {
+      font-size: 0.75rem;
       color: #999;
-      font-size: 0.78rem;
+      display: block;
     }
 
-    .no-result { padding: 10px 12px; color: #aaa; font-size: 0.875rem; }
-
-    /* ── Nav links ── */
-    .nav-right a.nav-link {
-      color: #333;
+    .nav-search-item .child-label {
       font-weight: 600;
-      font-size: 0.9rem;
-      white-space: nowrap;
+      display: block;
     }
 
-    .nav-right a.nav-link:hover { color: var(--primary-dark); }
+    .nav-search-no-results {
+      padding: 12px 16px;
+      color: #999;
+      font-size: 0.85rem;
+      text-align: center;
+    }
 
-    /* ── Content ── */
+    /* No sidebar — content fills full width */
     .content-wrapper {
-      background: #f7f7f7;
-      min-height: calc(100vh - 57px);
-      padding: 0;
+      margin-left: 0 !important;
     }
+</style>
 
-    .content-wrapper .content { padding: 1rem; }
-  </style>
 </head>
 
-<!-- No sidebar class: just hold-transition -->
-<body class="hold-transition">
+<!-- No sidebar classes needed -->
+<body class="hold-transition layout-fixed">
 <div class="wrapper">
 
-  <!-- ============================= -->
-  <!--           NAVBAR              -->
-  <!-- ============================= -->
+<!-- ========================================================= -->
+<!--                         NAVBAR                            -->
+<!-- ========================================================= -->
+
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
-    <!-- Left: Title -->
-    <div id="divTitle">${projectName}</div>
+    <!-- Left: title -->
+    <div class="d-flex align-items-center">
+      <div id="divTitle" class="ml-3"></div>
+    </div>
 
-    <!-- Right: Search + Nav -->
-    <div class="d-flex align-items-center gap-3 nav-right">
+    <!-- Right: search + home + user -->
+    <ul class="navbar-nav ml-auto align-items-center">
 
-      <!-- Search -->
-      <div class="search-box">
-        <input id="searchBox" type="text" placeholder="Search elements..." autocomplete="off">
-        <i class="fas fa-search"></i>
-        <div id="resultsDropdown" class="results-dropdown d-none"></div>
-      </div>
+      <!-- NAV SEARCH -->
+      <li class="nav-item mr-2" id="navSearchWrapper">
+        <input
+          type="text"
+          id="navSearchInput"
+          placeholder="&#xf002; Search menu..."
+          autocomplete="off"
+          style="font-family: 'Font Awesome 5 Free', 'Segoe UI', sans-serif;"
+        />
+        <div id="navSearchDropdown"></div>
+      </li>
 
-      <!-- Home -->
-      <a href="?a=showHomePage" class="nav-link"><strong>Home</strong></a>
+      <!-- HOME -->
+      <li class="nav-item">
+        <a href="?a=showHomePage" class="nav-link"><strong>Home</strong></a>
+      </li>
 
-      <!-- User Dropdown -->
-      <div class="dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown">
+      <!-- USER DROPDOWN -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
           <strong>${userdetails.username}</strong>
         </a>
         <div class="dropdown-menu dropdown-menu-right">
           <a class="dropdown-item"><strong>Valid Till (${userdetails.validTillDDMMYYY})</strong></a>
           <a href="?a=showChangePassword" class="dropdown-item"><strong>Change Password</strong></a>
           <a href="?a=showShortcuts" class="dropdown-item"><strong>Shortcuts</strong></a>
-          <a href="javascript:logout();" class="dropdown-item text-danger"><strong>Logout</strong></a>
+          <a href="javascript:logout();" class="dropdown-item" id="refLogout"><strong>Logout</strong></a>
         </div>
-      </div>
-    </div>
+      </li>
+
+    </ul>
   </nav>
 
-  <!-- ============================= -->
-  <!--         MAIN CONTENT          -->
-  <!-- ============================= -->
-  <div class="content-wrapper">
+<!-- ========================================================= -->
+<!--              BUILD MENU DATA FROM JSP / JSTL              -->
+<!-- ========================================================= -->
+
+<!--
+  We emit the menu structure as a JS array so the navbar search can use it.
+  Each entry: { parent, child, url }
+-->
+<script>
+var menuItems = [
+  <c:forEach items="${elementsDB}" var="item">
+    <c:forEach items="${item.getChildElements()}" var="item1">
+      {
+        parent: "${item.getElementName()}",
+        child:  "${item1.getElementName()}",
+        url:    "${item1.getElementUrl()}"
+      },
+    </c:forEach>
+  </c:forEach>
+];
+</script>
+
+<!-- ========================================================= -->
+<!--                   MAIN CONTENT AREA                        -->
+<!-- ========================================================= -->
+
+  <div class="content-wrapper" style="background:lightblue">
     <section class="content">
       <div class="container-fluid">
-        <jsp:include page="${jspName}"/>
+        <div class="row">
+          <div class="col-12">
+            <jsp:include page="${jspName}"/>
+          </div>
+        </div>
       </div>
     </section>
   </div>
 
-  <!-- ============================= -->
-  <!--            MODAL              -->
-  <!-- ============================= -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog modal-lg" style="min-width:100%">
-      <div class="modal-content">
-        <div class="modal-body text-center">
-          <div id="responseText"><div class="loader" id="loader"></div></div>
-        </div>
-        <div class="modal-footer text-right">
-          <button id="closebutton" type="button" onclick='location.reload()' class="btn btn-danger" data-dismiss="modal">Close</button>
-        </div>
+</div> <!-- wrapper end -->
+
+<!-- ========================================================= -->
+<!--                       MODAL                                -->
+<!-- ========================================================= -->
+
+<div class="modal fade" id="myModal" role="dialog">
+  <div class="modal-dialog modal-lg" style="min-width:100%">
+    <div class="modal-content">
+      <div class="modal-body" align="center">
+        <p id="responseText"><div align="center" class="loader" id="loader"></div></p>
+      </div>
+      <div class="modal-footer" style="text-align:right">
+        <button id="closebutton" type="button" onclick='location.reload()' class="btn btn-danger" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
+</div>
 
-</div><!-- /wrapper -->
+<!-- ========================================================= -->
+<!--                  JAVASCRIPT FUNCTIONS                      -->
+<!-- ========================================================= -->
 
-<!-- Scripts -->
 <script>
-function logout(){
-  $("#closebutton").hide();
-  $('#myModal').modal({backdrop:'static', keyboard:false});
+function navigateToURL(theURL){ window.location=theURL; }
+
+function logout() {
+  document.getElementById("closebutton").style.display='none';
+  $('#myModal').modal({backdrop: 'static', keyboard: false});
+
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function(){
-    if(xhttp.readyState == 4 && xhttp.status == 200){
-      $("#loader").hide();
-      $("#responseText").html(xhttp.responseText);
-      $("#closebutton").show();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      document.getElementById("responseText").innerHTML = xhttp.responseText;
+      document.getElementById("closebutton").style.display = 'block';
+      window.location.reload();
     }
   };
-  xhttp.open("GET","?a=Logout",true);
+  xhttp.open("GET","?a=Logout", true);
   xhttp.send();
 }
 </script>
 
-<!-- Smart Search -->
 <script>
-const elements = [];
-<c:forEach items="${elementsDB}" var="item">
-  <c:forEach items="${item.getChildElements()}" var="child">
-    elements.push({
-      parent: '${item.getElementName()}',
-      child:  '${child.getElementName()}',
-      name:   '${item.getElementName()} > ${child.getElementName()}',
-      url:    '${child.getElementUrl()}'
+$(document).ready(function () {
+  window.onkeydown = function(evt) {
+    if (evt.keyCode == 119) logout();  // F8
+  };
+});
+</script>
+
+<!-- ========================================================= -->
+<!--                   NAVBAR SEARCH LOGIC                      -->
+<!-- ========================================================= -->
+<script>
+(function () {
+  var input    = document.getElementById('navSearchInput');
+  var dropdown = document.getElementById('navSearchDropdown');
+
+  function renderResults(query) {
+    var q = query.trim().toLowerCase();
+    dropdown.innerHTML = '';
+
+    if (q === '') {
+      dropdown.classList.remove('show');
+      return;
+    }
+
+    var matched = menuItems.filter(function(item) {
+      return (item.parent + ' ' + item.child).toLowerCase().includes(q);
     });
-  </c:forEach>
-</c:forEach>;
 
-const box  = document.getElementById("searchBox");
-const drop = document.getElementById("resultsDropdown");
+    if (matched.length === 0) {
+      dropdown.innerHTML = '<div class="nav-search-no-results">No results found</div>';
+    } else {
+      matched.forEach(function(item) {
+        var a = document.createElement('a');
+        a.href = item.url;
+        a.className = 'nav-search-item';
+        a.innerHTML =
+          '<span class="parent-label">' + escapeHtml(item.parent) + '</span>' +
+          '<span class="child-label">' + highlightMatch(item.child, q) + '</span>';
+        dropdown.appendChild(a);
+      });
+    }
 
-function renderList(list){
-  drop.innerHTML = "";
-  if(list.length === 0){
-    drop.innerHTML = "<div class='no-result'>No results found</div>";
-  } else {
-    list.forEach(e => {
-      const div = document.createElement("div");
-      div.className = "result-item";
-      div.innerHTML =
-        `<i class="fas fa-angle-right" style="color:var(--primary-color)"></i>
-         <div>
-           <div class="parent-name">`+e.parent+`</div>
-           <div>`+e.child+`</div>
-         </div>`;
-      div.onclick = () => window.location = e.url;
-      drop.appendChild(div);
-    });
+    dropdown.classList.add('show');
   }
-  drop.classList.remove("d-none");
-}
 
-function showResults(q){
-  const filtered = q
-    ? elements.filter(e => e.name.toLowerCase().includes(q.toLowerCase()))
-    : elements;
-  renderList(filtered);
-}
-
-box.addEventListener("focus",  () => showResults(""));
-box.addEventListener("input",  () => showResults(box.value.trim()));
-
-document.addEventListener("click", e => {
-  if(!document.querySelector(".search-box").contains(e.target)){
-    drop.classList.add("d-none");
+  function highlightMatch(text, query) {
+    var idx = text.toLowerCase().indexOf(query);
+    if (idx === -1) return escapeHtml(text);
+    return escapeHtml(text.substring(0, idx))
+      + '<mark style="background:#fff3b0;padding:0;">' + escapeHtml(text.substring(idx, idx + query.length)) + '</mark>'
+      + escapeHtml(text.substring(idx + query.length));
   }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  input.addEventListener('input', function () {
+    renderResults(this.value);
+  });
+
+  input.addEventListener('focus', function () {
+    if (this.value.trim() !== '') renderResults(this.value);
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function (e) {
+    if (!document.getElementById('navSearchWrapper').contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  // Keyboard: arrow keys + enter to navigate results
+  input.addEventListener('keydown', function (e) {
+    var items = dropdown.querySelectorAll('.nav-search-item');
+    var active = dropdown.querySelector('.nav-search-item.active-result');
+    var idx = -1;
+    items.forEach(function(el, i){ if(el === active) idx = i; });
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      var next = idx + 1 < items.length ? idx + 1 : 0;
+      if (active) active.classList.remove('active-result');
+      if (items[next]) {
+        items[next].classList.add('active-result');
+        items[next].style.background = '#fdf5dc';
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      var prev = idx - 1 >= 0 ? idx - 1 : items.length - 1;
+      if (active) active.classList.remove('active-result');
+      if (items[prev]) {
+        items[prev].classList.add('active-result');
+        items[prev].style.background = '#fdf5dc';
+      }
+    } else if (e.key === 'Enter') {
+      if (active) window.location = active.href;
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('show');
+    }
+  });
+})();
+</script>
+
+<!-- KEYBOARD SHORTCUTS -->
+<script>
+window.addEventListener('keydown', function(e) {
+  if (e.altKey && e.keyCode == 76) logout();   // ALT + L
+});
+window.addEventListener('keydown', function(e) {
+  if (e.altKey && e.shiftKey && e.keyCode == 82) window.location.href = "?a=reloadSession"; // ALT+SHIFT+R
 });
 
-/* Ctrl+K / Cmd+K to focus search */
-window.addEventListener("keydown", e => {
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){
-    e.preventDefault();
-    box.focus();
+window.onload = function () {
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  if (!isAndroid) {
+    document.getElementById("navSearchInput").focus();
+  }
+};
+
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+    document.getElementById("navSearchInput").focus();
+  }
+});
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.shiftKey && event.key === 'H') {
+    window.location = "?a=showHomePage";
+  }
+});
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.shiftKey && event.key === 'L') {
+    logout();
   }
 });
 </script>
