@@ -2413,6 +2413,37 @@ public String getLastDayOfFinancialYear(Connection con) throws SQLException {
     return getMap(params, sql, con).get("last_day_fy").toString();
 }
 
+public List<String> getMonthsForCurrentFinancialYear(Connection con)
+        throws SQLException, ClassNotFoundException {
+
+    ArrayList<Object> parameters = new ArrayList<>();
+
+    String sql =
+        "SELECT " +
+        "  DATE_FORMAT( " +
+        "    DATE_ADD( " +
+        "      STR_TO_DATE( " +
+        "        CONCAT( " +
+        "          (CASE WHEN MONTH(CURDATE()) >= 4 " +
+        "                THEN YEAR(CURDATE()) " +
+        "                ELSE YEAR(CURDATE()) - 1 END), " +
+        "          '-04-01' " +
+        "        ), '%Y-%m-%d' " +
+        "      ), " +
+        "      INTERVAL seq.n MONTH " +
+        "    ), " +
+        "    '%b-%Y' " +
+        "  ) AS month_name " +
+        "FROM ( " +
+        "  SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 " +
+        "  UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 " +
+        "  UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 " +
+        ") AS seq " +
+        "ORDER BY seq.n";
+
+    return getListOfStringWithLogging(parameters, sql, con, "OFF");
+}
+
 
 
 
