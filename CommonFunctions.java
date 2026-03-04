@@ -77,7 +77,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.yaml.snakeyaml.Yaml;
 
-
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -93,6 +93,7 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.qrcode.EncodeHintType;
 import com.itextpdf.text.pdf.qrcode.ErrorCorrectionLevel;
+
 
 
 import org.springframework.core.io.Resource;
@@ -1622,61 +1623,99 @@ public void checkIfMysqlIsRunning() throws SQLException, InterruptedException{
 		}
 	}
 
-	public void generatePDFFromList(String FileName, List<LinkedHashMap<String, Object>> listHm, String[] colNames,BigDecimal total,String ReportHeading)
-			throws IOException, DocumentException {
+	
 
-		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 60);
-		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(FileName));
+public void generatePDFFromList(String fileName, List<LinkedHashMap<String, Object>> listHm,
+String[] colNames, BigDecimal total, String reportHeading)
+throws IOException, DocumentException {
 
-		CommonFunctions event = new CommonFunctions();
-		writer.setPageEvent(event);
-		document.open();
-		PdfPTable table = new PdfPTable(1);
-		PdfPCell cell;
 
-		cell = new PdfPCell(new Phrase(ReportHeading, new Font(Font.FontFamily.TIMES_ROMAN, 20, Font.BOLD)));
-		cell.setBorder(Rectangle.NO_BORDER);
-		cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
-		table.addCell(cell);
-		document.add(table);
-		document.add(new Paragraph("\n\n"));
+Document document = new Document(PageSize.A4.rotate(), 36, 36, 36, 60);
+PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
 
-		table = new PdfPTable(colNames.length);
+CommonFunctions event = new CommonFunctions();
+writer.setPageEvent(event);
 
-		for (String s : colNames) {
-			cell = new PdfPCell(new Phrase(s, new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD)));
-			cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
-			cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);			
-			table.addCell(cell);
-		}
+document.open();
 
-		for (LinkedHashMap<String, Object> tempHm : listHm) {
-			for (String s : colNames) {
-				String reqVal = tempHm.get(s) == null ? "" : tempHm.get(s).toString();
-				cell = new PdfPCell(new Phrase(reqVal, new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL)));
-				cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
-				cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
-				table.addCell(cell);
-			}
-		}
-		
-		if(!total.toString().equals("0"))
-		{
-		cell = new PdfPCell(new Phrase("Total Amount: "+ String.valueOf(total), new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL)));
-		cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
-		cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
-		cell.setColspan(colNames.length);
-		cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
-		table.addCell(cell);
-		}
-		
-		
+// Define Colors
+BaseColor gold = new BaseColor(212, 175, 55);   // metallic gold
+BaseColor white = BaseColor.WHITE;
+BaseColor lightGold = new BaseColor(245, 230, 150);
 
-		document.add(table);
+// Heading Table
+PdfPTable headerTable = new PdfPTable(1);
+headerTable.setWidthPercentage(100);
 
-		document.close();
+Font headingFont = new Font(Font.FontFamily.TIMES_ROMAN, 20, Font.BOLD, gold);
+PdfPCell headingCell = new PdfPCell(new Phrase(reportHeading, headingFont));
+headingCell.setBorder(Rectangle.NO_BORDER);
+headingCell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+headingCell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+headingCell.setPadding(10f);
+headerTable.addCell(headingCell);
+document.add(headerTable);
 
-	}
+document.add(new Paragraph("\n"));
+
+// Data Table
+PdfPTable table = new PdfPTable(colNames.length);
+table.setWidthPercentage(100);
+table.getDefaultCell().setBorderColor(gold);
+table.setSpacingBefore(10f);
+table.setSpacingAfter(10f);
+
+Font headerFont = new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, white);
+Font bodyFont = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
+
+// Column Headers (Gold background + White borders)
+for (String col : colNames) {
+    PdfPCell cell = new PdfPCell(new Phrase(col, headerFont));
+    cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+    cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+    cell.setBackgroundColor(gold);
+    cell.setPadding(6f);
+    cell.setBorderColor(BaseColor.WHITE);   // ✅ White border for better visibility
+    cell.setBorderWidth(1f);                // Slightly thicker white border
+    table.addCell(cell);
+}
+
+// Data Rows
+for (LinkedHashMap<String, Object> tempHm : listHm) {
+    for (String col : colNames) {
+        String value = tempHm.get(col) == null ? "" : tempHm.get(col).toString();
+        PdfPCell cell = new PdfPCell(new Phrase(value, bodyFont));
+        cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+        cell.setBackgroundColor(white);
+        cell.setPadding(5f);
+        cell.setBorderColor(lightGold);
+        table.addCell(cell);
+    }
+}
+
+// Total Row
+if (total != null && total.compareTo(BigDecimal.ZERO) != 0) {
+    PdfPCell totalCell = new PdfPCell(
+            new Phrase("Total Amount: " + total.toPlainString(),
+                    new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, gold))
+    );
+    totalCell.setColspan(colNames.length);
+    totalCell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
+    totalCell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+    totalCell.setPadding(8f);
+    totalCell.setBackgroundColor(new BaseColor(255, 250, 230)); // soft gold tint
+    totalCell.setBorderColor(gold);
+    table.addCell(totalCell);
+}
+
+document.add(table);
+document.close();
+
+
+}
+
+
 
 	public long uploadFileToDBDual(final String path,final Connection con, final String fileType, final long fileId)
 			throws Exception 
