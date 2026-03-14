@@ -77,6 +77,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.yaml.snakeyaml.Yaml;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -2484,7 +2485,87 @@ public List<String> getMonthsForCurrentFinancialYear(Connection con)
 }
 
 
+  private static final ObjectMapper mapper = new ObjectMapper();
 
+    /* ---------------------------------------------------
+       Functional interface for DB actions
+    --------------------------------------------------- */
+    @FunctionalInterface
+    public interface AjaxDBAction {
+        String execute(Connection con) throws Exception;
+    }
+
+    /* ---------------------------------------------------
+       Main framework executor
+    --------------------------------------------------- */
+    public CustomResultObject ajaxDB(HttpServletRequest req, AjaxDBAction action) {
+
+        CustomResultObject rs = new CustomResultObject();
+
+        try (Connection con = getConnectionJDBC()) {
+
+            rs.setAjaxData(action.execute(con));
+
+        } catch (Exception e) {
+            writeErrorToDB(e);
+            rs.setHasError(true);
+        }
+
+        return rs;
+    }
+
+    /* ---------------------------------------------------
+       JSON helper
+    --------------------------------------------------- */
+    public static String json(Object obj) throws Exception {
+        return mapper.writeValueAsString(obj);
+    }
+
+    /* ---------------------------------------------------
+       Map builder helper
+    --------------------------------------------------- */
+    public static Map<String,Object> map(Object... kv) {
+
+        if (kv.length % 2 != 0)
+            throw new IllegalArgumentException("Key/value pairs required");
+
+        Map<String,Object> m = new HashMap<>();
+
+        for(int i=0;i<kv.length;i+=2)
+            m.put((String)kv[i], kv[i+1]);
+
+        return m;
+    }
+
+    /* ---------------------------------------------------
+       Request param helpers
+    --------------------------------------------------- */
+    public static long paramLong(HttpServletRequest req, String name) {
+        return Long.parseLong(req.getParameter(name));
+    }
+
+    public static int paramInt(HttpServletRequest req, String name) {
+        return Integer.parseInt(req.getParameter(name));
+    }
+
+    public static String param(HttpServletRequest req, String name) {
+        return req.getParameter(name);
+    }
+
+	// below is example
+	// public CustomResultObject getStudent(HttpServletRequest req) {
+
+    // long studentId = paramLong(req,"student_id");
+
+    // return ajaxDB(req, c ->
+    //     json(map(
+    //         "student_id", studentId,
+    //         "student_name", dao.getStudentName(studentId, c),
+    //         "list_of_subjects", dao.getSubjects(studentId, c),
+    //         "list_of_attendance", dao.getAttendance(studentId, c)
+    //     ))
+    // );
+	// }
 
 	
 
