@@ -72,6 +72,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -2498,11 +2499,11 @@ public List<String> getMonthsForCurrentFinancialYear(Connection con)
     /* ---------------------------------------------------
        Main framework executor
     --------------------------------------------------- */
-    public CustomResultObject ajaxDB(HttpServletRequest req, AjaxDBAction action) {
+    public CustomResultObject ajaxDB(HttpServletRequest req, AjaxDBAction action,Connection con) {
 
         CustomResultObject rs = new CustomResultObject();
 
-        try (Connection con = getConnectionJDBC()) {
+        try  {
 
             rs.setAjaxData(action.execute(con));
 
@@ -2566,6 +2567,19 @@ public List<String> getMonthsForCurrentFinancialYear(Connection con)
     //     ))
     // );
 	// }
+
+	public JSONObject parseRequestJSON(HttpServletRequest request) throws Exception {
+
+    StringBuilder sb = new StringBuilder();
+    BufferedReader reader = request.getReader();
+
+    String line;
+    while ((line = reader.readLine()) != null) {
+        sb.append(line);
+    }
+
+    return new JSONObject(sb.toString());
+}
 
 	
 
