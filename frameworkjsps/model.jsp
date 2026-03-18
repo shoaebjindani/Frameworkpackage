@@ -896,7 +896,9 @@ function openMenuBrowser(){
   buildMenuBrowserGrid('');
   $('#menuBrowserModal').modal('show');
   $('#menuBrowserModal').one('shown.bs.modal', function(){
-    if (window.innerWidth >= 601) s.focus();
+    var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);    
+    var isDesktop = window.innerWidth >= 1024 && !isTouchDevice;
+    if (isDesktop) s.focus();
   });
 }
 
@@ -918,9 +920,9 @@ window.addEventListener('keydown', function(e){
 });
 
 window.onload = function(){
-  var isAndroid = /Android/i.test(navigator.userAgent);
-  var isMobile  = window.innerWidth <= 600;
-  if (!isAndroid && !isMobile){
+  var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  var isDesktop = window.innerWidth >= 1024 && !isTouchDevice;
+  if (isDesktop){
     var n = document.getElementById('navSearchInput');
     if (n) n.focus();
   }
