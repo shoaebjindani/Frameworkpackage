@@ -3,17 +3,23 @@ package Frameworkpackage;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 
 
 public class CommonServiceImpl extends CommonFunctions {
 
     CommonDaoImpl lobjCommonDaoImpl=new CommonDaoImpl();
+	ObjectMapper mapper = new ObjectMapper();
     public CustomResultObject showReport(HttpServletRequest request,Connection con) throws SQLException
 	{
 	 	CustomResultObject rs=new CustomResultObject();
@@ -256,6 +262,47 @@ public class CommonServiceImpl extends CommonFunctions {
 		}
 		return rs;
 	}
+
+	public CustomResultObject getDebugInfo(HttpServletRequest request, Connection con) {
+
+    CustomResultObject rs = new CustomResultObject();
+
+    try {
+        String userId = ((HashMap<String, String>) request.getSession()
+                .getAttribute("userdetails")).get("user_id");
+
+        List<LinkedHashMap<String, Object>> lstUserRoleDetails =
+                lobjCommonDaoImpl.getUserRoleDetails(Long.valueOf(userId), con);
+
+        LinkedHashMap<Long, Role> roleMaster = apptypes.get("Master");
+
+        List<String> roles = new ArrayList<>();
+
+        for (LinkedHashMap<String, Object> lm : lstUserRoleDetails) {
+            Role realRole = roleMaster.get(Long.valueOf(lm.get("role_id").toString()));
+            roles.add(realRole.getRoleName());   // ✅ role names
+        }
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("roles", roles);
+
+        // environment
+        String env = System.getProperty("env") != null
+                ? System.getProperty("env")
+                : "Production";
+
+        responseMap.put("environment", env);
+
+        mapper.registerModule(new JavaTimeModule());
+        rs.setAjaxData(mapper.writeValueAsString(responseMap));
+
+    } catch (Exception e) {
+        writeErrorToDB(e);
+        rs.setHasError(true);
+    }
+
+    return rs;
+}
     
 }
 	
