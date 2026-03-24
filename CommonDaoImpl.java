@@ -106,22 +106,17 @@ public class CommonDaoImpl extends CommonFunctions{
 
 	}
 
-	public List<LinkedHashMap<String, Object>> getUserRoleDetails(long roleId, Connection con)
-				throws SQLException, ClassNotFoundException {
-			ArrayList<Object> parameters = new ArrayList<>();
-			parameters.add(roleId);
-			return getListOfLinkedHashHashMap(parameters,
-					"select\r\n"
-							+ "	*\r\n"
-							+ "from\r\n"
-							+ "	tbl_user_mst user,\r\n"
-							+ "	acl_user_role_rlt userrole	\r\n"
-							+ "where\r\n"
-							+ "	user.user_id = ? \r\n"
-							+ "	and user.user_id = userrole.user_id	\r\n"
-							+ "	and userrole.activate_flag = 1",
-							con);
-		}
+	public LinkedHashMap<String, String> getAppDetailsByShortCode(String appShortCode, Connection con) throws SQLException {
+    ArrayList<Object> parameters = new ArrayList<>();
+    parameters.add(appShortCode);
+
+    return getMap(parameters,
+            "SELECT app_id, app_name FROM mst_app WHERE app_short_code = ?",
+            con);
+}
+
+
+
 
 	
 }
