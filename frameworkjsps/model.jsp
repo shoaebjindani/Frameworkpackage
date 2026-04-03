@@ -916,15 +916,6 @@ window.addEventListener('keydown', function(e){
   if (e.ctrlKey && e.shiftKey && e.key==='L')                 logout();
   if (e.ctrlKey && e.shiftKey && e.key==='M')                 openMenuBrowser();
 });
-
-window.onload = function(){
-  var isAndroid = /Android/i.test(navigator.userAgent);
-  var isMobile  = window.innerWidth <= 600;
-  if (!isAndroid && !isMobile){
-    var n = document.getElementById('navSearchInput');
-    if (n) n.focus();
-  }
-};
 </script>
 
 </body>
