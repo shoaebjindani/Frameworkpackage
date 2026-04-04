@@ -2,6 +2,8 @@ package Frameworkpackage;
 
 
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -218,14 +221,48 @@ response.addCookie(sessionCookie);
 				response.setCharacterEncoding("UTF-8");
 				response.getWriter().write(rs.getAjaxData());
 
-			} else // its a file
+			} 
+			 else if(rs.getReturnObject().get("file_download")!=null && rs.getReturnObject().get("file_download").toString()=="true") // its a file
 			{
-				logMessage+="Its not ajax nor a view name, Unless its a file download something is wrong";
+				logMessage += "Streaming file instead of redirect";
+
+    String fileName = rs.getReturnObject().get(filename_constant).toString();
+
+
+    File file = new File(request.getServletContext().getRealPath("BufferedImagesFolder") + "/" + fileName);
+
+    response.setContentType("application/pdf");
+
+    
+	
+    response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+    response.setContentLengthLong(file.length());
+
+    FileInputStream fis = new FileInputStream(file);
+    ServletOutputStream os = response.getOutputStream();
+
+    byte[] buffer = new byte[4096];
+    int bytesRead;
+
+    while ((bytesRead = fis.read(buffer)) != -1) {
+        os.write(buffer, 0, bytesRead);
+    }
+
+    fis.close();
+    os.flush();
+			}
+			else // its a file download
+{
+
+
+	logMessage+="Its not ajax nor a view name, Unless its a file download something is wrong";
 				String filepath = rs.getReturnObject().get(filename_constant).toString();
 				logMessage+="Found a File So returning " + "BufferedImagesFolder/" + filepath;
 				response.sendRedirect("BufferedImagesFolder/" + filepath);
-			}
 
+    
+}
 			
 			
 			con.commit();
