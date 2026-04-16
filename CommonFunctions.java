@@ -2251,36 +2251,73 @@ public HashMap<String,String> getFirstAndLastDateOfCurrentMonth(Connection con) 
 	}
 	
 	public void copyImagesFromDBToBufferFolder(ServletContext sc, Connection con)
-			throws ClassNotFoundException, SQLException, IOException {
-		String DestinationPath = sc.getRealPath("BufferedImagesFolder") + "/";
-		logger.debug("Destination path is"+DestinationPath);
-		
-		// set global session
-		if(!copyAttachmentsToBuffer)
-			return;
-		
-		
-		while (true) {
-			File f1 = new File(DestinationPath);
-			List<String> listFromServerFolder = Arrays.asList(f1.list());
-			ArrayList<Object> parameters = new ArrayList<>();
-			List<String> lstFromDb = getListOfString(parameters,
-					"select concat(attachment_id,file_name) as file_name from 	tbl_attachment_mst where activate_flag=1 ",
-					con);
-			HashSet<String> setFromServerFolder = new HashSet<String>(listFromServerFolder);
-			HashSet<String> setFromDb = new HashSet<String>(lstFromDb);
-			setFromDb.removeAll(setFromServerFolder);
-			ArrayList<String> namesList = new ArrayList<>(setFromDb);
+        throws ClassNotFoundException, SQLException, IOException {
 
-			logger.debug("Pending Files to copy"+namesList);
+    String destinationPath = sc.getRealPath("BufferedImagesFolder") + "/";
+    logger.debug("[INIT] Destination path: {}"+destinationPath);
 
-			if (actualCopy(DestinationPath, con, namesList)) {
-				break;
-			}
+    if (!copyAttachmentsToBuffer) {
+        logger.debug("[SKIP] copyAttachmentsToBuffer=false");
+        return;
+    }
 
-		}
-	}
-	
+    int iteration = 0;
+
+    while (true) {
+        iteration++;
+        long loopStart = System.currentTimeMillis();
+
+        File f1 = new File(destinationPath);
+        String[] fileArr = f1.list();
+
+        if (fileArr == null) {
+            logger.error("[ERROR] Folder not readable: {}"+ destinationPath);
+            return;
+        }
+
+        List<String> listFromServerFolder = Arrays.asList(fileArr);
+
+        List<String> lstFromDb = getListOfString(
+                new ArrayList<>(),
+                "select concat(attachment_id,file_name) from tbl_attachment_mst where activate_flag=1",
+                con
+        );
+
+        HashSet<String> setFromServerFolder = new HashSet<>(listFromServerFolder);
+        HashSet<String> setFromDb = new HashSet<>(lstFromDb);
+
+        int folderCount = setFromServerFolder.size();
+        int dbCount = setFromDb.size();
+
+        setFromDb.removeAll(setFromServerFolder);
+        ArrayList<String> pending = new ArrayList<>(setFromDb);
+
+        logger.debug("[ITER {}] Folder={}, DB={}, Pending={}"+" " +iteration+" "+folderCount+" "+dbCount+" "+ pending.size());
+
+        if (!pending.isEmpty()) {
+            logger.debug("[ITER {} SAMPLE] {}"+ iteration+ " "+
+                    pending.stream().limit(5).toList());
+        }
+
+        boolean done = actualCopy(destinationPath, con, pending);
+
+        long loopEnd = System.currentTimeMillis();
+
+        logger.debug("[ITER {} DONE] allCopied={}, time={}ms"+iteration+" "+ done+" "+ (loopEnd - loopStart));
+
+        // 🔴 IMPORTANT DEBUG
+        if (!done && pending.isEmpty()) {
+            logger.error("[STUCK] No pending files but still not done!");
+            break;
+        }
+
+        if (done) {
+            logger.debug("[COMPLETE] All files copied");
+            break;
+        }
+    }
+}
+
 public void initializeApplication(Class[] scanClasses) throws ClassNotFoundException, SQLException, IOException {
 		
 		
