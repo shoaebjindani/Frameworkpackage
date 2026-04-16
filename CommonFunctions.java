@@ -1215,36 +1215,81 @@ public void checkIfMysqlIsRunning() throws SQLException, InterruptedException{
 	
 	
 	
-	public void copyAttachmentsFromDBToGivenPath(String persistentPath,Connection con) throws ClassNotFoundException, SQLException, IOException
-	{
-		String DestinationPath = persistentPath;
-		logger.debug("Destination path is"+DestinationPath);
-		logger.debug("copyAttachmentsToBuffer"+copyAttachmentsToBuffer);
-		// set global session
-		if(!copyAttachmentsToBuffer)
-			return;
-		
-		
-		while (true) {
-			File f1 = new File(DestinationPath);
-			List<String> listFromServerFolder = Arrays.asList(f1.list());
-			ArrayList<Object> parameters = new ArrayList<>();
-			List<String> lstFromDb = getListOfString(parameters,
-					"select concat(attachment_id,file_name) as file_name from 	tbl_attachment_mst where activate_flag=1 ",
-					con);
-			HashSet<String> setFromServerFolder = new HashSet<String>(listFromServerFolder);
-			HashSet<String> setFromDb = new HashSet<String>(lstFromDb);
-			setFromDb.removeAll(setFromServerFolder);
-			ArrayList<String> namesList = new ArrayList<>(setFromDb);
+	public void copyAttachmentsFromDBToGivenPath(String persistentPath, Connection con)
+        throws ClassNotFoundException, SQLException, IOException {
 
-			logger.debug("Pending Files to copy"+namesList);
+    long startTime = System.currentTimeMillis();
 
-			if (actualCopy(DestinationPath, con, namesList)) {
-				break;
-			}
+    String DestinationPath = persistentPath;
+    logger.error("[INIT] Destination path: " + DestinationPath);
+    logger.error("[INIT] copyAttachmentsToBuffer: " + copyAttachmentsToBuffer);
 
-		}
-	}
+    if (!copyAttachmentsToBuffer) {
+        logger.error("[SKIP] copyAttachmentsToBuffer is false. Exiting.");
+        return;
+    }
+
+    int iteration = 0;
+
+    while (true) {
+        iteration++;
+        long loopStart = System.currentTimeMillis();
+
+        logger.error("[LOOP] Iteration: " + iteration);
+
+        File f1 = new File(DestinationPath);
+        String[] fileArr = f1.list();
+
+        if (fileArr == null) {
+            logger.error("[ERROR] Unable to read folder: " + DestinationPath);
+            return;
+        }
+
+        List<String> listFromServerFolder = Arrays.asList(fileArr);
+        logger.error("[FOLDER] File count: " + listFromServerFolder.size());
+
+        ArrayList<Object> parameters = new ArrayList<>();
+        List<String> lstFromDb = getListOfString(parameters,
+                "select concat(attachment_id,file_name) as file_name from tbl_attachment_mst where activate_flag=1",
+                con);
+
+        logger.error("[DB] Active file count: " + lstFromDb.size());
+
+        HashSet<String> setFromServerFolder = new HashSet<>(listFromServerFolder);
+        HashSet<String> setFromDb = new HashSet<>(lstFromDb);
+
+        setFromDb.removeAll(setFromServerFolder);
+        ArrayList<String> namesList = new ArrayList<>(setFromDb);
+
+        logger.error("[PENDING] Files to copy count: " + namesList.size());
+
+        if (!namesList.isEmpty()) {
+            logger.error("[PENDING_SAMPLE] " + namesList.subList(0, Math.min(5, namesList.size())));
+        }
+
+        boolean result = actualCopy(DestinationPath, con, namesList);
+
+        long loopEnd = System.currentTimeMillis();
+
+        logger.error("[LOOP_RESULT] Iteration: " + iteration +
+                ", allCopied=" + result +
+                ", time=" + (loopEnd - loopStart) + " ms");
+
+        // 🔴 Safety debug (detect stuck loop)
+        if (!result && namesList.isEmpty()) {
+            logger.error("[STUCK] No pending files but still not completed!");
+            break;
+        }
+
+        if (result) {
+            logger.error("[COMPLETE] All files copied successfully.");
+            break;
+        }
+    }
+
+    long endTime = System.currentTimeMillis();
+    logger.error("[FINAL] Total execution time: " + (endTime - startTime) + " ms");
+}
 	
 	public void copyFromSrcToDesitnationIfNotExist(String sourcePath,String destinationPath) throws IOException
 	{
