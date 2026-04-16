@@ -2250,73 +2250,181 @@ public HashMap<String,String> getFirstAndLastDateOfCurrentMonth(Connection con) 
       } 
 	}
 	
-	public void copyImagesFromDBToBufferFolder(ServletContext sc, Connection con)
-        throws ClassNotFoundException, SQLException, IOException {
+	public void syncAttachments(ServletContext sc, Connection con) {
+    try {
+        long startTime = System.currentTimeMillis();
 
-    String destinationPath = sc.getRealPath("BufferedImagesFolder") + "/";
-    logger.debug("[INIT] Destination path: {}"+destinationPath);
+        String destinationPath = sc.getRealPath("BufferedImagesFolder") + "/";
+        log("[INIT] Destination path: " + destinationPath);
 
-    if (!copyAttachmentsToBuffer) {
-        logger.debug("[SKIP] copyAttachmentsToBuffer=false");
-        return;
-    }
+        File folder = new File(destinationPath);
+        String[] diskFilesArr = folder.list();
 
-    int iteration = 0;
-
-    while (true) {
-        iteration++;
-        long loopStart = System.currentTimeMillis();
-
-        File f1 = new File(destinationPath);
-        String[] fileArr = f1.list();
-
-        if (fileArr == null) {
-            logger.error("[ERROR] Folder not readable: {}"+ destinationPath);
+        if (diskFilesArr == null) {
+            logger.error("[ERROR] Unable to read folder: " + destinationPath);
             return;
         }
 
-        List<String> listFromServerFolder = Arrays.asList(fileArr);
+        Set<String> diskFiles = new HashSet<>(Arrays.asList(diskFilesArr));
+        log("[DISK] Files count: " + diskFiles.size());
 
-        List<String> lstFromDb = getListOfString(
-                new ArrayList<>(),
-                "select concat(attachment_id,file_name) from tbl_attachment_mst where activate_flag=1",
-                con
-        );
+        Map<Integer, String> dbMap = fetchActiveAttachments(con);
+        log("[DB] Active attachments: " + dbMap.size());
 
-        HashSet<String> setFromServerFolder = new HashSet<>(listFromServerFolder);
-        HashSet<String> setFromDb = new HashSet<>(lstFromDb);
+        List<Integer> missingIds = new ArrayList<>();
 
-        int folderCount = setFromServerFolder.size();
-        int dbCount = setFromDb.size();
-
-        setFromDb.removeAll(setFromServerFolder);
-        ArrayList<String> pending = new ArrayList<>(setFromDb);
-
-        logger.debug("[ITER {}] Folder={}, DB={}, Pending={}"+" " +iteration+" "+folderCount+" "+dbCount+" "+ pending.size());
-
-        if (!pending.isEmpty()) {
-            logger.debug("[ITER {} SAMPLE] {}"+ iteration+ " "+
-                    pending.stream().limit(5).toList());
+        for (Map.Entry<Integer, String> entry : dbMap.entrySet()) {
+            String fullName = entry.getKey() + entry.getValue();
+            if (!diskFiles.contains(fullName)) {
+                missingIds.add(entry.getKey());
+            }
         }
 
-        boolean done = actualCopy(destinationPath, con, pending);
+        log("[MISSING] Files to copy: " + missingIds.size());
 
-        long loopEnd = System.currentTimeMillis();
-
-        logger.debug("[ITER {} DONE] allCopied={}, time={}ms"+iteration+" "+ done+" "+ (loopEnd - loopStart));
-
-        // 🔴 IMPORTANT DEBUG
-        if (!done && pending.isEmpty()) {
-            logger.error("[STUCK] No pending files but still not done!");
-            break;
+        if (!missingIds.isEmpty()) {
+            log("[MISSING_SAMPLE] " + missingIds.subList(0, Math.min(5, missingIds.size())));
         }
 
-        if (done) {
-            logger.debug("[COMPLETE] All files copied");
-            break;
+        if (missingIds.isEmpty()) {
+            log("[DONE] Nothing to copy");
+            return;
         }
+
+        int batchSize = 100;
+        int total = missingIds.size();
+
+        for (int i = 0; i < total; i += batchSize) {
+
+            List<Integer> batch = missingIds.subList(i, Math.min(i + batchSize, total));
+
+            log("[BATCH] Processing " + i + " to " + (i + batch.size()));
+
+            copyBatch(con, destinationPath, batch);
+
+            log("[PROGRESS] " + (i + batch.size()) + "/" + total + " done");
+        }
+
+        long endTime = System.currentTimeMillis();
+        log("[COMPLETE] Total time: " + (endTime - startTime) + " ms");
+
+    } catch (Exception e) {
+        logger.error("[FATAL] syncAttachments failed", e);
     }
 }
+
+
+private Map<Integer, String> fetchActiveAttachments(Connection con) throws SQLException {
+
+    Map<Integer, String> map = new HashMap<>();
+
+    String query = "SELECT attachment_id, file_name FROM tbl_attachment_mst WHERE activate_flag=1";
+
+    try (PreparedStatement ps = con.prepareStatement(query);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            int id = rs.getInt("attachment_id");
+            String fileName = rs.getString("file_name");
+
+            if (fileName == null) {
+                logger.error("[NULL_FILENAME] attachment_id=" + id);
+                continue;
+            }
+
+            map.put(id, fileName);
+        }
+    }
+
+    return map;
+}
+
+private void copyBatch(Connection con, String path, List<Integer> ids)
+        throws SQLException, IOException {
+
+    if (ids == null || ids.isEmpty()) {
+        log("[BATCH] Empty batch");
+        return;
+    }
+
+    String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+
+    String query = "SELECT attachment_id, file_name, attachment_asblob " +
+                   "FROM tbl_attachment_mst " +
+                   "WHERE attachment_id IN (" + placeholders + ")";
+
+    int success = 0;
+    int fail = 0;
+    int skipped = 0;
+
+    try (PreparedStatement ps = con.prepareStatement(query)) {
+
+        int index = 1;
+        for (Integer id : ids) {
+            ps.setInt(index++, id);
+        }
+
+        long qStart = System.currentTimeMillis();
+        ResultSet rs = ps.executeQuery();
+        long qEnd = System.currentTimeMillis();
+
+        log("[QUERY] Batch fetch took " + (qEnd - qStart) + " ms");
+
+        while (rs.next()) {
+
+            int id = rs.getInt("attachment_id");
+            String fileName = rs.getString("file_name");
+
+            if (fileName == null) {
+                logger.error("[NULL_FILENAME] attachment_id=" + id);
+                fail++;
+                continue;
+            }
+
+            String fullName = id + fileName;
+            File file = new File(path + fullName);
+
+            if (file.exists()) {
+                skipped++;
+                continue;
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+
+                Blob blob = rs.getBlob("attachment_asblob");
+
+                if (blob == null) {
+                    logger.error("[NULL_BLOB] " + fullName);
+                    fail++;
+                    continue;
+                }
+
+                long blobSize = blob.length();
+                log("[COPY] " + fullName + " size=" + blobSize + " bytes");
+
+                InputStream is = blob.getBinaryStream();
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+
+                success++;
+
+            } catch (Exception e) {
+                logger.error("[FAIL] " + fullName, e);
+                fail++;
+            }
+        }
+    }
+
+    log("[BATCH_SUMMARY] success=" + success + ", fail=" + fail + ", skipped=" + skipped);
+}
+private void log(String msg) {
+    logger.error(msg);
+}
+
 
 public void initializeApplication(Class[] scanClasses) throws ClassNotFoundException, SQLException, IOException {
 		
