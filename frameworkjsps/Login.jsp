@@ -9,75 +9,112 @@
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link rel="stylesheet" href="../plugins/toastr/toastr.min.css">
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
 
     <script src="../js/jquery.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
     <script src="../plugins/toastr/toastr.min.js"></script>
 
     <style>
-        /* ====== Soft Champagne Gold Theme ====== */
+        /* ======  Theme ====== */
         body, html {
             height: 100%;
             margin: 0;
-            background: linear-gradient(135deg, #f7e7ce, #e6cfb2, #d4b483);
-            background-attachment: fixed;
+            background: #f4f5f7;
             font-family: 'Segoe UI', sans-serif;
             color: #333;
         }
 
-        .card-container.card { max-width: 350px; padding: 40px 40px; }
+        .brand-wrap {
+            text-align: center;
+            margin: 60px auto 0;
+        }
+
+        .brand-logo {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 18px;
+            display: block;
+            cursor: pointer;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', 'Segoe UI', serif;
+            font-weight: 800;
+            font-size: 34px;
+            color: #1b2340;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            letter-spacing: 2.5px;
+            color: #9a8f7a;
+            font-weight: 600;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        .card-container.card { max-width: 380px; padding: 40px 40px; }
 
         .card {
-            background-color: #fdfaf6;
-            padding: 25px 30px 35px;
-            margin: 50px auto 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border: 1px solid #e3d7c3;
-        }
-
-        .profile-img-card { margin: 0 auto 15px; height: 80px; }
-
-        .btn-signin {
-            background: linear-gradient(90deg, #c8ad7f, #d4b483);
-            font-weight: 700;
-            font-size: 15px;
-            border-radius: 6px;
+            background-color: #ffffff;
+            padding: 35px 35px 30px;
+            margin: 30px auto 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(27,35,64,0.08);
             border: none;
-            color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            margin-top: 10px;
         }
 
-        .btn-signin:hover {
-            background: linear-gradient(90deg, #b99b6b, #c4a777);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+        label.field-label {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #9aa0ab;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #1a1a1a;
+            border-radius: 30px;
+            padding: 4px 6px;
+            transition: all 0.2s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: #d9b76f;
+            box-shadow: 0 0 8px rgba(217,183,111,0.6);
+        }
+
+        .input-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c8ad7f;
+            font-size: 15px;
+            flex-shrink: 0;
         }
 
         .form-control {
-            border-radius: 6px;
-            border: 1px solid #cbbd9e;
-            padding: 10px;
-            font-size: 14px;
+            border: none;
+            background: transparent;
+            padding: 8px 6px;
+            font-size: 15px;
+            box-shadow: none !important;
         }
 
-        .form-control:focus {
-            border-color: #b99b6b;
-            box-shadow: 0 0 5px rgba(201,173,127,0.6);
-        }
+        .form-control:focus { outline: none; box-shadow: none; }
 
-        .input-group-addon {
-            background: #f4ebdd;
-            border: 1px solid #cbbd9e;
-            border-left: 0;
-            cursor: pointer;
-            padding: 8px 10px;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .form-check { margin-top: 10px; }
+        .form-check { margin-top: 6px; margin-bottom: 10px; }
 
         a { color: #a6864b; }
         a:hover { text-decoration: underline; color: #8c6e3e; }
@@ -91,6 +128,33 @@
         }
 
         #currentAppCode a { margin-left: 10px; font-size: 12px; cursor: pointer; }
+
+        .btn-signin {
+            background: #1b2340;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-radius: 30px;
+            border: none;
+            color: #d9b76f;
+            padding: 14px;
+            box-shadow: 0 4px 10px rgba(27,35,64,0.25);
+            transition: all 0.25s ease;
+            margin-top: 6px;
+        }
+
+        .btn-signin:hover {
+            background: #2a3358;
+            transform: translateY(-1px);
+            color: #f0d9a3;
+        }
+
+        .default-creds {
+            text-align: center;
+            font-size: 12px;
+            color: #b7bfca;
+            margin-top: 18px;
+        }
 
         .loader {
             border: 16px solid #f3f3f3;
@@ -114,18 +178,21 @@
 
 <body>
     <div class="container">
+
+        <!-- Brand header -->
+        <div class="brand-wrap">
+            <svg id="profile-img" class="brand-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" fill="#1b2340"/>
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#d9b76f" stroke-width="1.5"/>
+                <path d="M50 28c-12 0-22 10-22 22s10 22 22 22" fill="none" stroke="#d9b76f" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M50 38c-6.5 0-12 5.5-12 12s5.5 12 12 12" fill="none" stroke="#d9b76f" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="4.5" fill="#d9b76f"/>
+            </svg>
+            <h1 class="brand-name" data-app-name></h1>
+            <div class="brand-subtitle">Enterprise Quality Management Portal</div>
+        </div>
+
         <div class="card card-container">
-
-            <!-- App name is injected here by login.js via [data-app-name] -->
-            <div class="row">
-                <div align="center" class="col-md-12"
-                     style="font-size:30px; font-style:italic; color:#6e5b3b; font-weight:800;"
-                     data-app-name>
-                </div>
-            </div>
-
-            <img id="profile-img" src="../img/loginicon.png"
-                 class="img-responsive profile-img-card" />
 
             <div id="currentAppCode" style="display:none;">
                 App Code: <span id="displayAppCode"></span>
@@ -133,15 +200,21 @@
             </div>
 
             <form method="POST">
-                <input type="text" id="txtusername" maxlength="30" name="txtusername"
-                       class="form-control" placeholder="Username" required autofocus>
+                <label class="field-label" for="txtusername">Username</label>
+                <div class="input-group">
+                    <span class="input-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+                    <input type="text" id="txtusername" maxlength="30" name="txtusername"
+                           class="form-control" placeholder="admin" required autofocus>
+                </div>
 
+                <label class="field-label" for="txtpassword">Password</label>
                 <div class="input-group" id="show_hide_password">
+                    <span class="input-icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
                     <input class="form-control" type="password" id="txtpassword"
-                           placeholder="Password" name="txtpassword">
-                    <div class="input-group-addon">
+                           placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" name="txtpassword">
+                    <span class="input-icon" style="cursor:pointer;">
                         <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-                    </div>
+                    </span>
                 </div>
 
                 <div class="form-check">
@@ -151,11 +224,14 @@
                     </label>
                 </div>
 
-                <button class="btn btn-lg btn-primary btn-block btn-signin"
-                        type="button" onclick="login()">Sign in</button>
-                <button class="btn btn-lg btn-primary btn-block btn-signin"
+                <button class="btn btn-lg btn-block btn-signin"
+                        type="button" onclick="login()">Sign In</button>
+                <button class="btn btn-lg btn-block btn-signin"
+                        style="background:transparent; color:#8c8f96; box-shadow:none; font-weight:600;"
                         type="button" onclick="showForgotPasswordScreen()">Forgot Password</button>
             </form>
+
+            <div class="default-creds">Default credentials: admin / admin</div>
         </div>
     </div>
 
