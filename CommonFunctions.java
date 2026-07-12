@@ -1602,9 +1602,16 @@ public void checkIfMysqlIsRunning() throws SQLException, InterruptedException{
 		for(String roleName:getListOfStringWithLogging(parameters, query, con,"OFF"))
 		{
 			String[] roleNameActions=roles.get(Long.valueOf(roleName)).getActions();
-			 List<String> lst=Arrays.asList(roleNameActions);
-			 distinctActions.addAll(lst);
+			if (roleNameActions != null) {
+				List<String> lst=Arrays.asList(roleNameActions);
+				distinctActions.addAll(lst);
+			}
 		}
+		
+		// Load custom actions directly mapped to the user
+		String customActionQuery = "select action_name from acl_user_action_rlt where user_id=? and activate_flag=1 ";
+		distinctActions.addAll(getListOfStringWithLogging(parameters, customActionQuery, con, "OFF"));
+		
 		return distinctActions;
 
 	}
