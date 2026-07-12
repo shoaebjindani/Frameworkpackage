@@ -206,6 +206,14 @@ public class CommonServiceImpl extends CommonFunctions {
 			listRoles.remove(100L);
 
 			outputMap.put("roleList", listRoles);
+			
+			// Put all available system actions sorted alphabetically
+			if (CommonFunctions.actions != null) {
+				outputMap.put("actionList", new java.util.TreeSet<>(CommonFunctions.actions.keySet()));
+			} else {
+				outputMap.put("actionList", new java.util.TreeSet<>());
+			}
+			
 			rs.setViewName("UserRoleMapping.jsp");	
 			rs.setReturnObject(outputMap);		
 		}
@@ -221,7 +229,11 @@ public class CommonServiceImpl extends CommonFunctions {
 	{
 		CustomResultObject rs=new CustomResultObject();
 		long userId=Long.parseLong(request.getParameter("userId"));		
-		String[] listOfRoles= request.getParameter("listOFRoles").split(",");
+		String listOFRolesParam = request.getParameter("listOFRoles");
+		String[] listOfRoles = (listOFRolesParam != null && !listOFRolesParam.trim().isEmpty()) ? listOFRolesParam.split(",") : new String[0];
+		
+		String listOfActionsParam = request.getParameter("listOfActions");
+		String[] listOfActions = (listOfActionsParam != null && !listOfActionsParam.trim().isEmpty()) ? listOfActionsParam.split(",") : new String[0];
 		
 		try
 		{			
@@ -229,7 +241,17 @@ public class CommonServiceImpl extends CommonFunctions {
 			lobjCommonDaoImpl.removeAllExistingRoles(userId,con);
 			for(String roleId:listOfRoles)
 			{			
-				lobjCommonDaoImpl.addUserRoleMapping(userId, Long.valueOf(roleId),roles.get(Long.valueOf(roleId)).getRoleName(), con);
+				if (!roleId.trim().isEmpty()) {
+					lobjCommonDaoImpl.addUserRoleMapping(userId, Long.valueOf(roleId),roles.get(Long.valueOf(roleId)).getRoleName(), con);
+				}
+			}							
+
+			lobjCommonDaoImpl.removeAllCustomActionsForUser(userId, con);
+			for(String actionName:listOfActions)
+			{			
+				if (!actionName.trim().isEmpty()) {
+					lobjCommonDaoImpl.addUserActionMapping(userId, actionName, con);
+				}
 			}							
 
 		}
@@ -238,7 +260,7 @@ public class CommonServiceImpl extends CommonFunctions {
 			writeErrorToDB(e);
 			rs.setHasError(true);
 		}	
-		rs.setAjaxData("Roles Updated Succesfully");
+		rs.setAjaxData("Roles and Actions Updated Succesfully");
 		return rs;
 	}
 	
