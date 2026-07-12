@@ -115,8 +115,25 @@ public class CommonDaoImpl extends CommonFunctions{
             con);
 }
 
+	public long removeAllCustomActionsForUser(long userId, Connection conWithF) throws SQLException {
+		ArrayList<Object> parameters = new ArrayList<>();
+		parameters.add(userId);
+		return insertUpdateDuablDB("update acl_user_action_rlt set activate_flag=0 where user_id=?", parameters,
+				conWithF);
+	}
 
+	public long addUserActionMapping(long userId, String actionName, Connection conWithF) throws SQLException {
+		ArrayList<Object> parameters = new ArrayList<>();
+		parameters.add(userId);
+		parameters.add(actionName);
+		return insertUpdateDuablDB("insert into acl_user_action_rlt (rlt_pk, user_id, action_name, activate_flag, created_date, updated_date) values (default,?,?,1,sysdate(),null)", parameters,
+				conWithF);
+	}
 
-
+	public List<String> getUserCustomActions(long userId, Connection con) throws SQLException, ClassNotFoundException {
+		ArrayList<Object> parameters = new ArrayList<>();
+		parameters.add(userId);
+		return getListOfString(parameters, "select action_name from acl_user_action_rlt where user_id=? and activate_flag=1", con);
+	}
 	
 }
