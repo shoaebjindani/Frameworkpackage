@@ -49,37 +49,67 @@
   <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
     :root {
+      --gold: #C9A227;
+      --gold-bright: #E8C547;
+      --gold-dim: #8a7220;
+
+      /* Light mode */
+      --bg: #FAF7EF;
+      --surface: #FFFFFF;
+      --text: #241F14;
+      --text-muted: #6b6250;
+      --border: #E5DCC3;
+      --shadow: rgba(36, 31, 20, 0.08);
+
       --primary-color: #d4af37;
       --primary-soft: #e8c86e;
       --primary-dark: #b89122;
       --secondary-color: #6c757d;
-      --background-color: #f7f7f7;
-      --text-color: #212529;
+      --background-color: #FAF7EF;
+      --text-color: #241F14;
       --navbar-bg: #ffffff;
     }
 
-    body {
-      background-color: var(--background-color);
-      color: var(--text-color);
-      font-family: "Segoe UI", sans-serif;
+    [data-theme="dark"] {
+      --bg: #14120C;
+      --surface: #1E1B12;
+      --text: #F3ECD9;
+      --text-muted: #A99C7A;
+      --border: #33301F;
+      --shadow: rgba(0, 0, 0, 0.4);
+
+      --background-color: #14120C;
+      --text-color: #F3ECD9;
+      --navbar-bg: #1E1B12;
+    }
+
+    body, .content-wrapper, .wrapper {
+      background: var(--bg) !important;
+      color: var(--text) !important;
+      transition: background 0.35s ease, color 0.35s ease;
+      font-family: 'Inter', sans-serif;
     }
 
     /* ============================
        NAVBAR
     ============================ */
     .main-header.navbar {
-      background-color: var(--navbar-bg) !important;
-      border-bottom: 2px solid var(--primary-color);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      background-color: var(--surface) !important;
+      border-bottom: 1px solid var(--border) !important;
+      box-shadow: 0 2px 12px var(--shadow) !important;
+      transition: background 0.35s ease, border-color 0.35s ease !important;
     }
 
-    .main-header .nav-link {
-      color: var(--text-color) !important;
+    .main-header .nav-link, .main-header .nav-link strong, .main-header .dropdown-toggle strong {
+      color: var(--text) !important;
       font-weight: 600;
+      transition: color 0.25s ease;
     }
     .main-header .nav-link:hover {
-      color: var(--primary-dark) !important;
+      color: var(--gold-bright) !important;
     }
 
     /* ============================
@@ -87,29 +117,33 @@
     ============================ */
     table thead th,
     table th {
-        background-color: var(--primary-soft) !important;
-        color: #000 !important;
+        background-color: var(--gold) !important;
+        color: #fff !important;
         text-align: center;
         font-weight: 600;
     }
 
-    td { color: #333; }
+    td { color: var(--text); }
 
     .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
+      background-color: var(--gold);
+      border-color: var(--gold);
+      color: #fff;
     }
     .btn-primary:hover {
-      background-color: var(--primary-dark);
+      background-color: var(--gold-bright);
+      border-color: var(--gold-bright);
     }
 
     .modal-content {
       border-radius: 10px;
-      border: 2px solid var(--primary-color);
+      border: 2px solid var(--gold);
+      background-color: var(--surface);
+      color: var(--text);
     }
 
     #divTitle {
-      color: var(--primary-dark);
+      color: var(--gold);
       font-size: 1.2rem;
       font-weight: 700;
     }
@@ -123,18 +157,25 @@
 
     #navSearchInput {
       width: 240px;
-      border: 1.5px solid var(--primary-color);
+      border: 1px solid var(--border) !important;
+      background: var(--bg) !important;
+      color: var(--text) !important;
       border-radius: 20px;
       padding: 4px 14px;
       font-size: 0.88rem;
       outline: none;
-      transition: width 0.3s ease;
+      transition: width 0.3s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+    }
+
+    #navSearchInput::placeholder {
+      color: var(--text-muted) !important;
+      opacity: 0.8;
     }
 
     #navSearchInput:focus {
       width: 300px;
-      border-color: var(--primary-dark);
-      box-shadow: 0 0 0 2px rgba(212,175,55,0.25);
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15) !important;
     }
 
     #navSearchDropdown {
@@ -145,10 +186,10 @@
       width: 320px;
       max-height: 360px;
       overflow-y: auto;
-      background: #fff;
-      border: 1.5px solid var(--primary-color);
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
       border-radius: 10px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      box-shadow: 0 10px 24px var(--shadow) !important;
       z-index: 9999;
     }
 
@@ -160,10 +201,11 @@
       display: block;
       padding: 8px 16px;
       font-size: 0.88rem;
-      color: #333;
+      color: var(--text) !important;
       text-decoration: none;
-      border-bottom: 1px solid #f0e6c0;
-      transition: background 0.15s;
+      border-bottom: 1px solid var(--border) !important;
+      background: transparent !important;
+      transition: background 0.15s, color 0.15s;
     }
 
     .nav-search-item:last-child {
@@ -171,14 +213,14 @@
     }
 
     .nav-search-item:hover {
-      background-color: #fdf5dc;
-      color: var(--primary-dark);
+      background-color: rgba(201, 162, 39, 0.08) !important;
+      color: var(--gold-bright) !important;
       text-decoration: none;
     }
 
     .nav-search-item .parent-label {
       font-size: 0.75rem;
-      color: #999;
+      color: var(--text-muted) !important;
       display: block;
     }
 
@@ -189,7 +231,7 @@
 
     .nav-search-no-results {
       padding: 12px 16px;
-      color: #999;
+      color: var(--text-muted) !important;
       font-size: 0.85rem;
       text-align: center;
     }
@@ -197,6 +239,153 @@
     /* No sidebar — content fills full width */
     .content-wrapper {
       margin-left: 0 !important;
+    }
+
+    /* Form controls theme adaptation */
+    .form-control, input.form-control, select.form-control, textarea.form-control, input[type="text"], input[type="textbox"] {
+      background-color: var(--bg) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border) !important;
+    }
+    .form-control:focus, input[type="text"]:focus, input[type="textbox"]:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15) !important;
+    }
+    .form-control:disabled, input[type="text"]:disabled, input[type="textbox"]:disabled {
+      background-color: var(--border) !important;
+      opacity: 0.6;
+    }
+
+    /* Global adaptation for containers/cards */
+    .card {
+      background-color: var(--surface) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border) !important;
+    }
+
+    /* Automatically override hardcoded inline white backgrounds to respect theme */
+    [style*="background-color:white"],
+    [style*="background-color: white"],
+    [style*="background-color:#fff"],
+    [style*="background-color: #fff"],
+    [style*="background-color:#ffffff"],
+    [style*="background-color: #ffffff"],
+    [style*="background:white"],
+    [style*="background: white"],
+    [style*="background:#fff"],
+    [style*="background: #fff"],
+    [style*="background:#ffffff"],
+    [style*="background: #ffffff"] {
+      background-color: var(--surface) !important;
+      background: var(--surface) !important;
+      color: var(--text) !important;
+    }
+
+    /* Automatically override hardcoded dark inline text to respect theme in dark mode */
+    [data-theme="dark"] [style*="color:black"],
+    [data-theme="dark"] [style*="color: black"],
+    [data-theme="dark"] [style*="color:#000"],
+    [data-theme="dark"] [style*="color: #000"],
+    [data-theme="dark"] [style*="color:#333"],
+    [data-theme="dark"] [style*="color: #333"],
+    [data-theme="dark"] [style*="color:#495057"],
+    [data-theme="dark"] [style*="color: #495057"] {
+      color: var(--text) !important;
+    }
+
+    /* Table containers and filter bars overrides for dark mode */
+    [data-theme="dark"] .table-container,
+    [data-theme="dark"] .plan-date-filter-bar {
+      background-color: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+    }
+
+    [data-theme="dark"] .table th,
+    [data-theme="dark"] table th {
+      background-color: var(--gold) !important;
+      color: #fff !important;
+    }
+
+    [data-theme="dark"] .table td,
+    [data-theme="dark"] table td {
+      background-color: transparent !important;
+      color: var(--text) !important;
+    }
+
+    [data-theme="dark"] .section-divider span,
+    [data-theme="dark"] .section-collapse-toggle,
+    [data-theme="dark"] .plan-date-filter-row .plan-date-label {
+      color: var(--text) !important;
+    }
+
+    [data-theme="dark"] .table {
+      --bs-table-bg: var(--surface) !important;
+      --bs-table-striped-bg: rgba(255, 255, 255, 0.03) !important;
+      color: var(--text) !important;
+    }
+
+    /* Organization chart overrides for dark mode */
+    [data-theme="dark"] .org-box {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+    }
+    [data-theme="dark"] .org-box:hover {
+      background-color: rgba(201, 162, 39, 0.08) !important;
+    }
+    [data-theme="dark"] .org-role {
+      color: var(--text-muted) !important;
+    }
+    [data-theme="dark"] .org-name {
+      color: var(--text) !important;
+    }
+
+    /* Dropdown overrides */
+    .dropdown-menu {
+      background-color: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+    }
+    .dropdown-item {
+      color: var(--text) !important;
+    }
+    .dropdown-item:hover {
+      background-color: rgba(201, 162, 39, 0.12) !important;
+      color: var(--gold-bright) !important;
+    }
+
+    /* Toggle switch */
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      display: inline-block;
+    }
+
+    .switch .knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+      box-shadow: 0 1px 4px var(--shadow);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    [data-theme="dark"] .switch .knob {
+      transform: translateX(24px);
     }
 </style>
 
@@ -210,7 +399,7 @@
 <!--                         NAVBAR                            -->
 <!-- ========================================================= -->
 
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light" style="margin-left:0px">
+  <nav class="main-header navbar navbar-expand" style="margin-left:0px; background-color: var(--surface) !important;">
 
     <!-- Left: title -->
     <div class="d-flex align-items-center">
@@ -232,8 +421,16 @@
         <div id="navSearchDropdown"></div>
       </li>
 
+      <!-- THEME TOGGLE -->
+      <li class="nav-item d-flex align-items-center mr-3">
+        <span style="font-size: 13px; color: var(--text); font-weight: 500; margin-right: 8px;">Dark Mode</span>
+        <div class="switch" id="themeSwitch">
+          <div class="knob" id="knob"></div>
+        </div>
+      </li>
+
       <!-- HOME -->
-      <li class="nav-item">
+      <li class="nav-item mr-2">
         <a href="?a=showHomePage" class="nav-link"><strong>Home</strong></a>
       </li>
 
@@ -242,12 +439,12 @@
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
           <strong>${userdetails.username}</strong>
         </a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item"><strong>Valid Till (${userdetails.validTillDDMMYYY})</strong></a>
-          <a href="?a=showChangePassword" class="dropdown-item"><strong>Change Password</strong></a>
-          <a href="?a=showShortcuts" class="dropdown-item"><strong>Shortcuts</strong></a>
-          <a href="javascript:copyDebugInfo()" class="dropdown-item"><strong>Copy Debug Info</strong></a>
-          <a href="javascript:logout();" class="dropdown-item" id="refLogout"><strong>Logout</strong></a>
+        <div class="dropdown-menu dropdown-menu-right" style="background-color: var(--surface); border: 1px solid var(--border);">
+          <a class="dropdown-item" style="color: var(--text);"><strong>Valid Till (${userdetails.validTillDDMMYYY})</strong></a>
+          <a href="?a=showChangePassword" class="dropdown-item" style="color: var(--text);"><strong>Change Password</strong></a>
+          <a href="?a=showShortcuts" class="dropdown-item" style="color: var(--text);"><strong>Shortcuts</strong></a>
+          <a href="javascript:copyDebugInfo()" class="dropdown-item" style="color: var(--text);"><strong>Copy Debug Info</strong></a>
+          <a href="javascript:logout();" class="dropdown-item" id="refLogout" style="color: var(--text);"><strong>Logout</strong></a>
         </div>
       </li>
 
@@ -620,6 +817,44 @@ function fallbackCopy(text) {
 function getNavigationPath() {
   return document.title || "Unknown Path";
 }
+
+// Global Theme Switch Logic
+(function() {
+  const switchEl = document.getElementById('themeSwitch');
+  const STORAGE_KEY = 'auric-theme-home';
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('body, .content-wrapper, .wrapper').forEach(el => {
+      el.setAttribute('data-theme', theme);
+    });
+  }
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') {
+      applyTheme(saved);
+    } else {
+      applyTheme('light');
+    }
+  } catch (e) {
+    console.warn('Theme could not be loaded from localStorage:', e);
+  }
+
+  if (switchEl) {
+    switchEl.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch (e) {
+        console.warn('Theme could not be saved to localStorage:', e);
+      }
+      window.dispatchEvent(new Event('themechange'));
+    });
+  }
+})();
 </script>
 
 </body>
