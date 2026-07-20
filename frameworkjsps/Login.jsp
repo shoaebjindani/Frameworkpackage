@@ -231,7 +231,6 @@
                         type="button" onclick="showForgotPasswordScreen()">Forgot Password</button>
             </form>
 
-            <div class="default-creds">Default credentials: admin / admin</div>
             <%
                 String patchVersion = "";
                 String commitId = "";
