@@ -232,6 +232,38 @@
             </form>
 
             <div class="default-creds">Default credentials: admin / admin</div>
+            <%
+                String patchVersion = "";
+                String commitId = "";
+                try {
+                    java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("git.properties");
+                    if (is != null) {
+                        java.util.Properties props = new java.util.Properties();
+                        props.load(is);
+                        String gitTime = props.getProperty("git.commit.time");
+                        String abbrevId = props.getProperty("git.commit.id.abbrev");
+                        if (gitTime != null && !gitTime.isEmpty()) {
+                            patchVersion = gitTime;
+                        }
+                        if (abbrevId != null && !abbrevId.isEmpty()) {
+                            commitId = abbrevId;
+                        }
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+                if (patchVersion != null && !patchVersion.isEmpty()) {
+                    String displayVersion = patchVersion;
+                    if (!commitId.isEmpty()) {
+                        displayVersion += " (" + commitId + ")";
+                    }
+            %>
+                <div class="text-center text-muted mt-3" style="font-size: 11px; margin-top: 15px; color: #888;">
+                    Patch Version: <%= displayVersion %>
+                </div>
+            <%
+                }
+            %>
         </div>
     </div>
 
