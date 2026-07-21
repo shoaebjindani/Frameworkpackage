@@ -189,7 +189,7 @@
                 <circle cx="50" cy="50" r="4.5" fill="#d9b76f"/>
             </svg>
             <h1 class="brand-name" data-app-name></h1>
-            <div class="brand-subtitle">Enterprise Quality Management Portal</div>
+            <div class="brand-subtitle"><%= Frameworkpackage.CommonFunctions.tagLine != null ? Frameworkpackage.CommonFunctions.tagLine : "" %></div>
         </div>
 
         <div class="card card-container">
