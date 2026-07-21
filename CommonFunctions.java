@@ -120,6 +120,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	public static String port;
 	public static String schemaName;
 	public static String projectName;
+	public static String tagLine;
 	public static String host;
 	public static Boolean isSendEmail;
 	public static String mySqlPath;
@@ -717,6 +718,7 @@ public class CommonFunctions extends PdfPageEventHelper
 				
 				schemaName= (String) data.get("schemaName");
 				projectName= (String) data.get("projectName");
+				tagLine= (String) data.get("tagLine");
 				threadSleep=(Integer) data.get("thread_sleep");				
 			}
 			else if (username == null || password== null|| port == null || mySqlPath== null || host== null)
@@ -741,6 +743,7 @@ public class CommonFunctions extends PdfPageEventHelper
 
 				schemaName= System.getenv("schemaName");
 				projectName= System.getenv("projectName");
+				tagLine= System.getenv("tagLine");
 				threadSleep=Integer.valueOf(System.getenv("thread_sleep"));
 
 			}
