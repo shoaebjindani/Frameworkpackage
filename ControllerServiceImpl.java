@@ -189,8 +189,10 @@ public class ControllerServiceImpl extends CommonFunctions {
 				
 				request.setAttribute("outputObject", hm);
 				if (isBypassed) {
-					RequestDispatcher dispatcher = request.getRequestDispatcher("frameworkjsps/model.jsp");
-					dispatcher.forward(request, response);
+
+						RequestDispatcher dispatcher = request.getRequestDispatcher(rs.getViewName());
+						dispatcher.forward(request, response);
+					
 				} else if(rs.disablemodaljsp)
 				{
 					RequestDispatcher dispatcher = request.getRequestDispatcher(rs.getViewName());
