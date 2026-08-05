@@ -36,6 +36,9 @@
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
   <!-- SCRIPTS -->
+  <script>
+    var IS_ADMIN = <%= (session.getAttribute("adminFlag") != null && (Boolean) session.getAttribute("adminFlag")) %>;
+  </script>
   <script src="js/common.js"></script>
   <script src="plugins/jquery/jquery.min.js"></script>
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
