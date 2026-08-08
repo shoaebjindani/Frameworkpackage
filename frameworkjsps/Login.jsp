@@ -180,9 +180,11 @@
     <div class="container">
 
         <!-- Brand header -->
-        <div class="brand-wrap">
-            
-            <h1 class="brand-name" data-app-name></h1>
+      <div class="brand-wrap">
+    <div id="profile-img" class="brand-logo" style="display:flex; align-items:center; justify-content:center; background:#1b2340; color:#d9b76f; font-size:36px;">
+        <i class="fa fa-lock" aria-hidden="true"></i>
+    </div>
+    <h1 class="brand-name" data-app-name></h1>
             <div class="brand-subtitle"><%= Frameworkpackage.CommonFunctions.tagLine != null ? Frameworkpackage.CommonFunctions.tagLine : "" %></div>
         </div>
 
