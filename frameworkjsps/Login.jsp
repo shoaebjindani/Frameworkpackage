@@ -180,11 +180,15 @@
     <div class="container">
 
         <!-- Brand header -->
-      <div class="brand-wrap">
-    <div id="profile-img" class="brand-logo" style="display:flex; align-items:center; justify-content:center; background:#1b2340; color:#d9b76f; font-size:36px;">
-        <i class="fa fa-lock" aria-hidden="true"></i>
-    </div>
-    <h1 class="brand-name" data-app-name></h1>
+        <div class="brand-wrap">
+            <svg id="profile-img" class="brand-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" fill="#1b2340"/>
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#d9b76f" stroke-width="1.5"/>
+                <path d="M50 28c-12 0-22 10-22 22s10 22 22 22" fill="none" stroke="#d9b76f" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M50 38c-6.5 0-12 5.5-12 12s5.5 12 12 12" fill="none" stroke="#d9b76f" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="4.5" fill="#d9b76f"/>
+            </svg>
+            <h1 class="brand-name" data-app-name></h1>
             <div class="brand-subtitle"><%= Frameworkpackage.CommonFunctions.tagLine != null ? Frameworkpackage.CommonFunctions.tagLine : "" %></div>
         </div>
 
@@ -298,3 +302,7 @@
     <script src="login.js"></script>
 </body>
 </html>
+
+<script>
+    txtusername.focus();
+</script>
