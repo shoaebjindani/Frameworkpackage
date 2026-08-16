@@ -1,7 +1,6 @@
 package Frameworkpackage;
 
 import java.io.Serializable;
-
 import java.util.List;
 
 
@@ -86,11 +85,19 @@ public class Element implements Serializable
 			return super.hashCode();
 		}
 		@Override
-		public boolean equals(Object obj) {
-			// TODO Auto-generated method stub
-			return this.elementId==((Element)obj).getElementId();
-			
-		}
+public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+
+    if (!(obj instanceof Element)) {
+        return false;
+    }
+
+    Element other = (Element) obj;
+
+    return elementId != null && elementId.equals(other.getElementId());
+}
 		
 		
 }
