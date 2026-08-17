@@ -2701,7 +2701,7 @@ public List<String> getMonthsForCurrentFinancialYear(Connection con)
 }
 
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  public static final ObjectMapper mapper = new ObjectMapper();
 
     /* ---------------------------------------------------
        Functional interface for DB actions
