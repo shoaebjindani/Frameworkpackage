@@ -229,7 +229,46 @@
                 <button class="btn btn-lg btn-block btn-signin"
                         style="background:transparent; color:#8c8f96; box-shadow:none; font-weight:600;"
                         type="button" onclick="showForgotPasswordScreen()">Forgot Password</button>
+
+                <div class="text-center mt-3 pt-2 border-top small text-muted">
+                    <div id="loginDeviceStatus" class="mb-1 font-weight-bold">
+                        <i class="fa fa-spinner fa-spin text-info mr-1"></i> Checking Device Agent...
+                    </div>
+                    <div>
+                        <a href="../?a=downloadDeviceAgent" class="text-secondary font-weight-bold small" title="Download 1-Click Setup Installer">
+                            <i class="fa fa-file-archive-o mr-1"></i> Download Device Agent (ZIP)
+                        </a>
+                    </div>
+                </div>
             </form>
+
+            <script>
+                $(document).ready(function() {
+                    checkLoginDeviceAgent();
+                });
+
+                function checkLoginDeviceAgent() {
+                    var statusEl = document.getElementById("loginDeviceStatus");
+                    if (!statusEl) return;
+                    
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() { controller.abort(); }, 2500);
+
+                    fetch('http://127.0.0.1:8765/getDeviceId', { signal: controller.signal })
+                        .then(function(res) { clearTimeout(timeoutId); return res.json(); })
+                        .then(function(data) {
+                            if (data && data.status === 'success') {
+                                statusEl.className = "mb-1 font-weight-bold text-success";
+                                statusEl.innerHTML = '<i class="fa fa-shield mr-1"></i> Device Agent Active (' + (data.deviceId || '') + ')';
+                            }
+                        })
+                        .catch(function(err) {
+                            clearTimeout(timeoutId);
+                            statusEl.className = "mb-1 font-weight-bold text-warning";
+                            statusEl.innerHTML = '<i class="fa fa-exclamation-triangle mr-1"></i> Device Agent Offline (Start DeviceAgent.jar)';
+                        });
+                }
+            </script>
 
             <%
                 String patchVersion = "";
