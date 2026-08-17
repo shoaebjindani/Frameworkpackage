@@ -7,7 +7,9 @@ window.addEventListener('keydown', function (e) {
 });
 
 function login() {
-    document.getElementById("closebutton").style.display = 'none';
+    if (document.getElementById("closebutton")) {
+        document.getElementById("closebutton").style.display = 'none';
+    }
 
     var username     = document.getElementById("txtusername");
     var password     = document.getElementById("txtpassword");
@@ -23,6 +25,31 @@ function login() {
     if (password.value === "")    { toastr.error("Please enter Valid password");              password.focus(); return; }
     if (!termsCheckbox.checked)   { toastr.error("Please agree to the Terms and Conditions");               return; }
 
+    toastr.info("Checking local device whitelist status...");
+
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 3000);
+
+    fetch('http://127.0.0.1:8765/getDeviceId', { signal: controller.signal })
+        .then(function(res) {
+            clearTimeout(timeoutId);
+            return res.json();
+        })
+        .then(function(data) {
+            var deviceId = data && data.deviceId ? data.deviceId : "";
+            sendLoginRequest(username.value, password.value, appCode, deviceId);
+        })
+        .catch(function(err) {
+            clearTimeout(timeoutId);
+            // Local agent offline -> send empty deviceId (server will deny login with instructions)
+            sendLoginRequest(username.value, password.value, appCode, "");
+        });
+}
+
+function sendLoginRequest(usernameVal, passwordVal, appCode, deviceId) {
+    var usernameField = document.getElementById("txtusername");
+    var passwordField = document.getElementById("txtpassword");
+
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
@@ -30,15 +57,18 @@ function login() {
                 window.location = window.location.toString().replace('Login.jsp', '../?a=showHomePage');
             } else {
                 toastr.error(this.responseText);
-                username.value = "";
-                password.value = "";
-                username.focus();
+                usernameField.value = "";
+                passwordField.value = "";
+                usernameField.focus();
             }
         }
     };
     xhttp.open("POST", "../?actionName=validateLogin", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("txtusername=" + username.value + "&txtpassword=" + password.value + "&app_code=" + appCode);
+    xhttp.send("txtusername=" + encodeURIComponent(usernameVal) +
+               "&txtpassword=" + encodeURIComponent(passwordVal) +
+               "&app_code=" + encodeURIComponent(appCode) +
+               "&txtDeviceId=" + encodeURIComponent(deviceId));
 }
 
 // ── App Code modal helpers ───────────────────────────────────
