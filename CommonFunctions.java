@@ -127,6 +127,7 @@ public class CommonFunctions extends PdfPageEventHelper
 	public static List<String> lstbypassedActions;
 	public static List<String> lstbypassedReports;
 	public static Map dataStatic;
+	public static Boolean isDeviceRestrictionEnabled = true;
 
 	
 	public static int threadSleep;
@@ -719,7 +720,17 @@ public class CommonFunctions extends PdfPageEventHelper
 				schemaName= (String) data.get("schemaName");
 				projectName= (String) data.get("projectName");
 				tagLine= (String) data.get("tagLine");
-				threadSleep=(Integer) data.get("thread_sleep");				
+				threadSleep=(Integer) data.get("thread_sleep");
+
+				if (data.get("device_restriction") != null) {
+					Object dr = data.get("device_restriction");
+					if (dr instanceof Map) {
+						Map<?, ?> drMap = (Map<?, ?>) dr;
+						if (drMap.get("enabled") != null) {
+							isDeviceRestrictionEnabled = new Boolean(drMap.get("enabled").toString());
+						}
+					}
+				}
 			}
 			else if (username == null || password== null|| port == null || mySqlPath== null || host== null)
 			{
@@ -745,6 +756,10 @@ public class CommonFunctions extends PdfPageEventHelper
 				projectName= System.getenv("projectName");
 				tagLine= System.getenv("tagLine");
 				threadSleep=Integer.valueOf(System.getenv("thread_sleep"));
+
+				if (System.getenv("device_restriction_enabled") != null) {
+					isDeviceRestrictionEnabled = new Boolean(System.getenv("device_restriction_enabled"));
+				}
 
 			}
 
