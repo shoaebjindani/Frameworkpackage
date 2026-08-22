@@ -25,8 +25,6 @@ function login() {
     if (password.value === "")    { toastr.error("Please enter Valid password");              password.focus(); return; }
     if (!termsCheckbox.checked)   { toastr.error("Please agree to the Terms and Conditions");               return; }
 
-    toastr.info("Checking local device whitelist status...");
-
     var controller = new AbortController();
     var timeoutId = setTimeout(function() { controller.abort(); }, 3000);
 
