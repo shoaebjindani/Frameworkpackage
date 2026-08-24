@@ -764,13 +764,13 @@
 
     <!-- Home -->
     <li class="nav-item">
-      <a href="?a=showHomePage" class="nav-link nav-home-link"><strong>Home</strong></a>
+      <a href="?a=showHomePage" class="nav-link nav-home-link"><strong>Home</strong> <span style="color:green;font-weight:800">${userdetails.firm_name}</span></a>
     </li>
 
     <!-- User dropdown -->
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" style="padding:0 6px">
-        <strong>${userdetails.username}</strong>
+        <strong>${userdetails.username}</strong> 
       </a>
       <div class="dropdown-menu dropdown-menu-right">
         <a class="dropdown-item"><strong>Valid Till (${userdetails.validTillDDMMYYY})</strong></a>
