@@ -236,8 +236,8 @@
 %>
                 <div class="text-center mt-3 pt-2 border-top small text-muted">
                     <div>
-                        <a href="../?a=downloadDeviceAgent" class="text-secondary font-weight-bold small" title="Download Standalone Device Agent Executable">
-                            <i class="fa fa-windows mr-1"></i> Download Device Agent (.exe)
+                        <a href="../?a=downloadDeviceAgent" class="text-secondary font-weight-bold small" title="Download Device Agent for your device">
+                            <i class="fa fa-download mr-1"></i> Download Device Agent
                         </a>
                     </div>
                 </div>
