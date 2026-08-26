@@ -229,14 +229,19 @@ response.addCookie(sessionCookie);
 				logMessage += "Streaming file instead of redirect";
 
     String fileName = rs.getReturnObject().get(filename_constant).toString();
-
-
     File file = new File(request.getServletContext().getRealPath("BufferedImagesFolder") + "/" + fileName);
 
-    response.setContentType("application/pdf");
+    String lowerName = fileName.toLowerCase();
+    if (lowerName.endsWith(".apk")) {
+        response.setContentType("application/vnd.android.package-archive");
+    } else if (lowerName.endsWith(".exe") || lowerName.endsWith(".jar") || lowerName.endsWith(".zip")) {
+        response.setContentType("application/octet-stream");
+    } else if (lowerName.endsWith(".pdf")) {
+        response.setContentType("application/pdf");
+    } else {
+        response.setContentType("application/octet-stream");
+    }
 
-    
-	
     response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
     response.setContentLengthLong(file.length());
