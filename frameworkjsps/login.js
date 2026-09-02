@@ -176,12 +176,21 @@ $(document).ready(function () {
     /* App-code display – double-click logo to reveal */
     var appCode = localStorage.getItem("app_code");
 
-    if (appCode) {
-        $("#displayAppCode").text(appCode);
-        loadAppDetails();          // ← fetch app name on page load if code exists
-    } else {
-        $('#appCodeModal').modal('show');
-    }
+  if (appCode) {
+    $("#displayAppCode").text(appCode);
+    loadAppDetails();
+
+    // App code exists → focus username
+    $("#txtusername").focus();
+
+} else {
+    // App code does not exist → show modal and focus app code
+    $('#appCodeModal').modal('show');
+
+    $("#appCodeModal").on('shown.bs.modal', function () {
+        $("#inputAppCode").focus();
+    });
+}
 
     $("#profile-img").off("dblclick").on("dblclick", function () {
         $("#currentAppCode").toggle();
