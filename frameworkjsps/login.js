@@ -53,6 +53,8 @@ function sendLoginRequest(usernameVal, passwordVal, appCode, deviceId) {
         if (this.readyState === 4 && this.status === 200) {
             if (this.responseText === "Succesfully Logged In") {
                 window.location = window.location.toString().replace('Login.jsp', '../?a=showHomePage');
+            } else if (this.responseText === "DEVICE_NAME_REQUIRED") {
+                openCustomDeviceNameModal();
             } else {
                 toastr.error(this.responseText);
                 usernameField.value = "";
@@ -63,10 +65,40 @@ function sendLoginRequest(usernameVal, passwordVal, appCode, deviceId) {
     };
     xhttp.open("POST", "../?actionName=validateLogin", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("txtusername=" + encodeURIComponent(usernameVal) +
-               "&txtpassword=" + encodeURIComponent(passwordVal) +
-               "&app_code=" + encodeURIComponent(appCode) +
-               "&txtDeviceId=" + encodeURIComponent(deviceId));
+    var postData = "txtusername=" + encodeURIComponent(usernameVal) +
+                   "&txtpassword=" + encodeURIComponent(passwordVal) +
+                   "&app_code=" + encodeURIComponent(appCode) +
+                   "&txtDeviceId=" + encodeURIComponent(deviceId);
+    if (window.customDeviceNameVal) {
+        postData += "&txtCustomDeviceName=" + encodeURIComponent(window.customDeviceNameVal);
+    }
+    xhttp.send(postData);
+}
+
+function openCustomDeviceNameModal() {
+    document.getElementById("inputCustomDeviceName").value = "";
+    $('#customDeviceNameModal').modal('show');
+    setTimeout(function() {
+        document.getElementById("inputCustomDeviceName").focus();
+    }, 400);
+}
+
+function submitCustomDeviceNameModal() {
+    var devName = document.getElementById("inputCustomDeviceName").value.trim();
+    if (!devName) {
+        toastr.error("Please enter a custom device name.");
+        document.getElementById("inputCustomDeviceName").focus();
+        return;
+    }
+    window.customDeviceNameVal = devName;
+    $('#customDeviceNameModal').modal('hide');
+    login();
+}
+
+function cancelCustomDeviceModal() {
+    $('#customDeviceNameModal').modal('hide');
+    window.customDeviceNameVal = "";
+    toastr.warning("Device registration cancelled.");
 }
 
 // ── App Code modal helpers ───────────────────────────────────
@@ -176,21 +208,12 @@ $(document).ready(function () {
     /* App-code display – double-click logo to reveal */
     var appCode = localStorage.getItem("app_code");
 
-  if (appCode) {
-    $("#displayAppCode").text(appCode);
-    loadAppDetails();
-
-    // App code exists → focus username
-    $("#txtusername").focus();
-
-} else {
-    // App code does not exist → show modal and focus app code
-    $('#appCodeModal').modal('show');
-
-    $("#appCodeModal").on('shown.bs.modal', function () {
-        $("#inputAppCode").focus();
-    });
-}
+    if (appCode) {
+        $("#displayAppCode").text(appCode);
+        loadAppDetails();          // ← fetch app name on page load if code exists
+    } else {
+        $('#appCodeModal').modal('show');
+    }
 
     $("#profile-img").off("dblclick").on("dblclick", function () {
         $("#currentAppCode").toggle();
