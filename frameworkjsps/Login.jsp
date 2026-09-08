@@ -298,6 +298,32 @@
         </div>
     </div>
 
+    <!-- Custom Device Name Modal -->
+    <div class="modal fade" id="customDeviceNameModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white py-3">
+                    <h5 class="modal-title font-weight-bold" style="font-size: 16px;">
+                        <i class="fa fa-shield text-warning mr-2"></i> Register New Device
+                    </h5>
+                </div>
+                <div class="modal-body p-4 text-left">
+                    <p class="text-secondary small mb-3">
+                        This device is not yet registered in the whitelist. Please enter a friendly device name to submit for Admin approval:
+                    </p>
+                    <div class="form-group mb-0">
+                        <label class="small font-weight-bold text-dark mb-1">Custom Device Name <span class="text-danger">*</span></label>
+                        <input type="text" id="inputCustomDeviceName" class="form-control" placeholder="e.g. xyz Phone / xyz Laptop" autofocus>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top-0 py-2">
+                    <button type="button" class="btn btn-secondary btn-sm font-weight-bold" onclick="cancelCustomDeviceModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm font-weight-bold" onclick="submitCustomDeviceNameModal()">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loader Modal -->
     <div class="modal fade" id="myModal" role="dialog">
         <div class="modal-dialog">
