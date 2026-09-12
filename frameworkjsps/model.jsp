@@ -764,7 +764,17 @@
 
     <!-- Home -->
     <li class="nav-item">
-      <a href="?a=showHomePage" class="nav-link nav-home-link"><strong>Home</strong> <span style="color:green;font-weight:800">${userdetails.firm_name}</span></a>
+      <a href="?a=showHomePage" class="nav-link nav-home-link"><strong>Home</strong></a>
+    </li>
+
+    <!-- Switch Firm Dropdown -->
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="headerFirmDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="loadHeaderFirmsDropdown()" style="color:green !important; font-weight:800;" title="Click to switch firm">
+        <span id="headerFirmNameSpan" style="color:green !important; font-weight:800;">${userdetails.firm_name}</span>
+      </a>
+      <div class="dropdown-menu" id="headerFirmDropdownMenu" aria-labelledby="headerFirmDropdown" style="min-width:220px; max-height:300px; overflow-y:auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>
+      </div>
     </li>
 
     <!-- User dropdown -->
@@ -861,15 +871,79 @@ var menuItems = [
         <div class="menu-browser-grid" id="menuBrowserGrid"></div>
       </div>
 
-    </div>
+</div>
   </div>
 </div>
+
+
 
 <!-- ============================================================
      JAVASCRIPT
 ============================================================ -->
 <script>
 function navigateToURL(u) { window.location = u; }
+
+var headerFirmListCache = null;
+var currentHeaderFirmId = "${userdetails.firm_id}";
+
+function loadHeaderFirmsDropdown() {
+  if (headerFirmListCache && headerFirmListCache.length > 0) {
+    renderHeaderFirmDropdownItems(headerFirmListCache);
+  } else {
+    var menu = document.getElementById('headerFirmDropdownMenu');
+    menu.innerHTML = '<div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>';
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
+        try {
+          headerFirmListCache = JSON.parse(xhttp.responseText);
+          renderHeaderFirmDropdownItems(headerFirmListCache);
+        } catch(e) {
+          console.error("Error parsing firms list:", e);
+        }
+      }
+    };
+    xhttp.open("GET", "?a=showSwitchFirm&isAjax=true", true);
+    xhttp.send();
+  }
+}
+
+function renderHeaderFirmDropdownItems(firms) {
+  var menu = document.getElementById('headerFirmDropdownMenu');
+  menu.innerHTML = '';
+  for (var i = 0; i < firms.length; i++) {
+    var firm = firms[i];
+    var a = document.createElement('a');
+    a.className = 'dropdown-item' + (String(firm.firmId) === String(currentHeaderFirmId) ? ' active' : '');
+    a.href = 'javascript:void(0);';
+    a.style.cursor = 'pointer';
+    a.style.fontSize = '14px';
+    a.onclick = (function(fId) {
+      return function() { switchFirmDirectly(fId); };
+    })(firm.firmId);
+
+    var icon = (String(firm.firmId) === String(currentHeaderFirmId)) ? '<i class="fas fa-check text-success mr-2"></i>' : '<i class="fas fa-building text-secondary mr-2"></i>';
+    a.innerHTML = icon + '<strong>' + escHtml(firm.firmName) + '</strong>';
+    menu.appendChild(a);
+  }
+}
+
+function switchFirmDirectly(firmId) {
+  if (String(firmId) === String(currentHeaderFirmId)) return;
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      if (typeof toastr !== 'undefined') {
+        toastr["success"](xhttp.responseText);
+      }
+      window.location.reload();
+    }
+  };
+  xhttp.open("GET", "?a=switchFirm&firmId=" + firmId, true);
+  xhttp.send();
+}
 
 /* ---- HTML escape ---- */
 function escHtml(s) {
