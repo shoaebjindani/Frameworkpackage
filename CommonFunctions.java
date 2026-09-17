@@ -693,95 +693,37 @@ public class CommonFunctions extends PdfPageEventHelper
 	
 	public void setApplicationConfig() {		
 		try 
-		{		
-			
-			
+		{	
 			Resource resource = new ClassPathResource("staticyaml/Config.yaml");
         	InputStream in = resource.getInputStream();
-			if(in!=null)
-			{
-
-				logger.debug("Config.yaml file found");
-				Yaml yaml = new Yaml(); 
-				Map<String, Object> data = yaml.load(in);				
-				dataStatic=data;
-				host=(String) data.get("host");
-				url = "jdbc:mysql://"+host;
-				username = (String) data.get("mysqlusername");
-				password = (String) data.get("password");
-				port =  (String) data.get("port");			
-				mySqlPath=(String) data.get("mySqlPath");
-				copyAttachmentsToBuffer=new Boolean(data.get("copyAttachmentsToBuffer").toString());
-				persistentPath=(String) data.get("persistentPath");
-				isAuditEnabled=new Boolean(data.get("isAuditEnabled").toString());
-				queryLogEnabled=new Boolean(data.get("queryLogEnabled").toString());
-				isSendEmail=new Boolean (data.get("sendEmail").toString());
-				
-				schemaName= (String) data.get("schemaName");
-				projectName= (String) data.get("projectName");
-				tagLine= (String) data.get("tagLine");
-				threadSleep=(Integer) data.get("thread_sleep");
-
-				if (data.get("device_restriction") != null) {
-					Object dr = data.get("device_restriction");
-					if (dr instanceof Map) {
-						Map<?, ?> drMap = (Map<?, ?>) dr;
-						if (drMap.get("enabled") != null) {
-							isDeviceRestrictionEnabled = new Boolean(drMap.get("enabled").toString());
-						}
-					}
-				}
-			}
-			else if (username == null || password== null|| port == null || mySqlPath== null || host== null)
-			{
-				logger.error("-------------------------------------Config.yaml NOT FOUND-------------------------------------");
-				logger.error("-------------------------------------Will Check Environment variables now-------------------------------------");				
-				System.out.println("-------------------------------------Config.yaml NOT FOUND-------------------------------------");		
-				System.out.println("-------------------------------------Will Check Environment variables now-------------------------------------");		
-
-				
-				host= System.getenv("host");
-				url = "jdbc:mysql://"+host;
-				username = System.getenv("mysqlusername");
-				password = System.getenv("password");
-				port =  System.getenv("port");
-				mySqlPath=System.getenv("mySqlPath");
-				copyAttachmentsToBuffer=new Boolean(System.getenv("copyAttachmentsToBuffer"));
-				persistentPath=System.getenv("persistentPath");
-				isAuditEnabled=new Boolean(System.getenv("isAuditEnabled"));
-				queryLogEnabled=new Boolean(System.getenv("queryLogEnabled"));
-				isSendEmail=new Boolean (System.getenv("sendEmail"));
-
-				schemaName= System.getenv("schemaName");
-				projectName= System.getenv("projectName");
-				tagLine= System.getenv("tagLine");
-				threadSleep=Integer.valueOf(System.getenv("thread_sleep"));
-
-				if (System.getenv("device_restriction_enabled") != null) {
-					isDeviceRestrictionEnabled = new Boolean(System.getenv("device_restriction_enabled"));
-				}
-
-			}
-
-			else{
-				System.out.println("-------------------------------------Config.yaml NOT FOUND-------------------------------------");
-				System.out.println("-------------------------------------Environment variables NOT FOUND-------------------------------------");
-				logger.error("-------------------------------------Config.yaml NOT FOUND-------------------------------------");
-				logger.error("-------------------------------------Environment variables NOT FOUND-------------------------------------");
-			}
+			logger.debug("Config.yaml file found");
+			Yaml yaml = new Yaml(); 
+			Map<String, Object> data = yaml.load(in);				
+			dataStatic=data;
+			host=(String) data.get("host");
+			url = "jdbc:mysql://"+host;
+			username = (String) data.get("mysqlusername");
+			password = (String) data.get("password");
+			port =  (String) data.get("port");			
+			mySqlPath=(String) data.get("mySqlPath");
+			copyAttachmentsToBuffer=new Boolean(data.get("copyAttachmentsToBuffer").toString());
+			persistentPath=(String) data.get("persistentPath");
+			isAuditEnabled=new Boolean(data.get("isAuditEnabled").toString());
+			queryLogEnabled=new Boolean(data.get("queryLogEnabled").toString());
+			isSendEmail=new Boolean (data.get("sendEmail").toString());
 			
-			
-			
-			
-			
-			
-			
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			schemaName= (String) data.get("schemaName");
+			projectName= (String) data.get("projectName");
+			tagLine= (String) data.get("tagLine");
+			threadSleep=(Integer) data.get("thread_sleep");
+			isDeviceRestrictionEnabled=new Boolean(data.get("device_restriction_enabled").toString());
 	}
+	catch(Exception e)
+	{
+		logger.error("Error in reading Config.yaml file");
+		e.printStackTrace();
+	}
+}
 	
 	
 	
