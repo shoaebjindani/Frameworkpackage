@@ -36,24 +36,9 @@
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
   <!-- SCRIPTS -->
- <%@ page import="java.util.List" %>
-<%
-    List<String> roles = (List<String>) session.getAttribute("listOfRoles");
-    boolean canExport = false;
-    if (roles != null) {
-        for (String r : roles) {
-            if (r != null && ("Admin".equalsIgnoreCase(r.trim())
-                    || "Production-Admin".equalsIgnoreCase(r.trim()))) {
-                canExport = true;
-                break;
-            }
-        }
-    }
-%>
-<script>
-  var IS_ADMIN   = <%= Boolean.TRUE.equals(session.getAttribute("adminFlag")) %>;
-  var CAN_EXPORT = <%= canExport %>;
-</script>
+  <script>
+    var IS_ADMIN = <%= (session.getAttribute("adminFlag") != null && (Boolean) session.getAttribute("adminFlag")) %>;
+  </script>
   <script src="js/common.js"></script>
   <script src="plugins/jquery/jquery.min.js"></script>
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -691,6 +676,29 @@
   .dropdown-item:hover { background-color: rgba(201, 162, 39, 0.12) !important; color: var(--gold-bright) !important; }
 
   /* ============================================================
+     FIRM SWITCHER — typeable search inside dropdown
+  ============================================================ */
+  #headerFirmDropdownMenu { padding-top: 0; }
+  #headerFirmDropdownMenu .firm-search-bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  #headerFirmSearch {
+    font-size: 16px; /* prevents iOS zoom on focus */
+    height: 36px;
+    border-radius: 18px;
+  }
+  #headerFirmList .dropdown-item.active,
+  #headerFirmList .dropdown-item.kb-active {
+    background-color: rgba(201, 162, 39, 0.18) !important;
+    color: var(--text) !important;
+  }
+
+  /* ============================================================
      THEME TOGGLE SWITCH
   ============================================================ */
   .switch {
@@ -782,13 +790,23 @@
       <a href="?a=showHomePage" class="nav-link nav-home-link"><strong>Home</strong></a>
     </li>
 
-    <!-- Switch Firm Dropdown -->
+    <!-- Switch Firm Dropdown (typeable) -->
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" href="#" id="headerFirmDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="loadHeaderFirmsDropdown()" style="color:green !important; font-weight:800;" title="Click to switch firm">
         <span id="headerFirmNameSpan" style="color:green !important; font-weight:800;">${userdetails.firm_name}</span>
       </a>
-      <div class="dropdown-menu" id="headerFirmDropdownMenu" aria-labelledby="headerFirmDropdown" style="min-width:220px; max-height:300px; overflow-y:auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>
+      <div class="dropdown-menu" id="headerFirmDropdownMenu" aria-labelledby="headerFirmDropdown" style="min-width:240px; max-height:320px; overflow-y:auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+
+        <!-- Typeable filter -->
+        <div class="firm-search-bar">
+          <input type="text" id="headerFirmSearch" class="form-control form-control-sm"
+                 placeholder="Type firm name..." autocomplete="off">
+        </div>
+
+        <!-- Firm list is rendered here -->
+        <div id="headerFirmList">
+          <div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>
+        </div>
       </div>
     </li>
 
@@ -904,45 +922,86 @@ var currentHeaderFirmId = "${userdetails.firm_id}";
 function loadHeaderFirmsDropdown() {
   if (headerFirmListCache && headerFirmListCache.length > 0) {
     renderHeaderFirmDropdownItems(headerFirmListCache);
-  } else {
-    var menu = document.getElementById('headerFirmDropdownMenu');
-    menu.innerHTML = '<div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>';
-
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (xhttp.readyState == 4 && xhttp.status == 200) {
-        try {
-          headerFirmListCache = JSON.parse(xhttp.responseText);
-          renderHeaderFirmDropdownItems(headerFirmListCache);
-        } catch(e) {
-          console.error("Error parsing firms list:", e);
-        }
-      }
-    };
-    xhttp.open("GET", "?a=showSwitchFirm&isAjax=true", true);
-    xhttp.send();
+    return;
   }
+  var list = document.getElementById('headerFirmList');
+  list.innerHTML = '<div class="dropdown-item text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin mr-1"></i> Loading firms...</div>';
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      try {
+        headerFirmListCache = JSON.parse(xhttp.responseText);
+        renderHeaderFirmDropdownItems(headerFirmListCache);
+      } catch (e) {
+        console.error("Error parsing firms list:", e);
+      }
+    }
+  };
+  xhttp.open("GET", "?a=showSwitchFirm&isAjax=true", true);
+  xhttp.send();
 }
 
 function renderHeaderFirmDropdownItems(firms) {
-  var menu = document.getElementById('headerFirmDropdownMenu');
-  menu.innerHTML = '';
-  for (var i = 0; i < firms.length; i++) {
-    var firm = firms[i];
+  var list = document.getElementById('headerFirmList');
+  var q = (document.getElementById('headerFirmSearch').value || '').trim().toLowerCase();
+  list.innerHTML = '';
+
+  var shown = firms.filter(function(f) {
+    return !q || String(f.firmName).toLowerCase().indexOf(q) !== -1;
+  });
+
+  if (!shown.length) {
+    list.innerHTML = '<div class="dropdown-item text-muted" style="font-size:13px;">No firms found</div>';
+    return;
+  }
+
+  shown.forEach(function(firm) {
+    var isCurrent = String(firm.firmId) === String(currentHeaderFirmId);
     var a = document.createElement('a');
-    a.className = 'dropdown-item' + (String(firm.firmId) === String(currentHeaderFirmId) ? ' active' : '');
+    a.className = 'dropdown-item header-firm-item' + (isCurrent ? ' active' : '');
     a.href = 'javascript:void(0);';
     a.style.cursor = 'pointer';
     a.style.fontSize = '14px';
-    a.onclick = (function(fId) {
-      return function() { switchFirmDirectly(fId); };
-    })(firm.firmId);
+    a.setAttribute('data-firm-id', firm.firmId);
+    a.onclick = function() { switchFirmDirectly(firm.firmId); };
 
-    var icon = (String(firm.firmId) === String(currentHeaderFirmId)) ? '<i class="fas fa-check text-success mr-2"></i>' : '<i class="fas fa-building text-secondary mr-2"></i>';
+    var icon = isCurrent
+      ? '<i class="fas fa-check text-success mr-2"></i>'
+      : '<i class="fas fa-building text-secondary mr-2"></i>';
     a.innerHTML = icon + '<strong>' + escHtml(firm.firmName) + '</strong>';
-    menu.appendChild(a);
-  }
+    list.appendChild(a);
+  });
 }
+
+/* ---- Typeable firm filter wiring ---- */
+(function() {
+  var search = document.getElementById('headerFirmSearch');
+  if (!search) return;
+
+  // typing filters the list
+  search.addEventListener('input', function() {
+    if (headerFirmListCache) renderHeaderFirmDropdownItems(headerFirmListCache);
+  });
+
+  // keep the dropdown open when clicking/typing in the box
+  search.addEventListener('click', function(e) { e.stopPropagation(); });
+  search.addEventListener('keydown', function(e) {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var first = document.querySelector('#headerFirmList .header-firm-item');
+      if (first) first.click();           // Enter = pick first match
+    }
+  });
+
+  // on open: clear filter, show full list, focus the box
+  $('#headerFirmDropdown').parent().on('shown.bs.dropdown', function() {
+    search.value = '';
+    if (headerFirmListCache) renderHeaderFirmDropdownItems(headerFirmListCache);
+    setTimeout(function() { search.focus(); }, 50);
+  });
+})();
 
 function switchFirmDirectly(firmId) {
   if (String(firmId) === String(currentHeaderFirmId)) return;
