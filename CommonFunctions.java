@@ -2973,6 +2973,11 @@ public List<String> getMonthsForCurrentFinancialYear(Connection con)
     return new JSONObject(sb.toString());
 }
 
+public String getTodayAsYYYYMMDD(Connection con) throws SQLException {
+    return getMap(new ArrayList<>(), "select date_format(sysdate(),'%Y%m%d') as dt1 from dual", con)
+            .get("dt1").toString();
+}
+
 	
 
 }
